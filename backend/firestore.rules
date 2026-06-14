@@ -1,0 +1,16 @@
+rules_version = '2';
+// Per-user cloud sync. A user can read/write only their own document, but the
+// subscription `plan` is server-controlled (set by the RevenueCat webhook via
+// the Admin SDK, which bypasses rules) so clients can't grant themselves Plus.
+service cloud.firestore {
+  match /databases/{db}/documents {
+    match /users/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create: if request.auth != null && request.auth.uid == uid
+        && (!('plan' in request.resource.data) || request.resource.data.plan == 'free');
+      allow update: if request.auth != null && request.auth.uid == uid
+        && (!('plan' in request.resource.data) || request.resource.data.plan == resource.data.plan);
+      allow delete: if false;
+    }
+  }
+}

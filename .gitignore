@@ -10,3 +10,6 @@ npm-debug.*
 ios/
 android/
 expo-env.d.ts
+
+# Firebase functions build output
+backend/functions/lib/
