@@ -9,6 +9,7 @@ import { VBSheet } from '@/components/Sheet';
 import { VBImage } from '@/components/VBImage';
 import { Scrim } from '@/components/Scrim';
 import { Icon, IconName } from '@/components/Icon';
+import { shareVerse } from '@/utils/share';
 import type { Toast } from '@/store/AppStore';
 
 export function ShareSheet({ verse, order, isPaid, onEditor, onClose, onToast }: { verse: Verse; order: 'en' | 'ko'; isPaid: boolean; onEditor: () => void; onClose: () => void; onToast: (t: Toast) => void }) {
@@ -53,7 +54,7 @@ export function ShareSheet({ verse, order, isPaid, onEditor, onClose, onToast }:
       </View>
       <View style={{ flexDirection: 'row', gap: 10, paddingHorizontal: 20, paddingTop: 12 }}>
         {opts.map((o) => (
-          <Pressable key={o.id} onPress={() => { onClose(); onToast({ text: o.toast, icon: 'check' }); }} style={{ flex: 1, alignItems: 'center', gap: 7 }}>
+          <Pressable key={o.id} onPress={async () => { onClose(); if (o.id === 'link') { onToast({ text: o.toast, icon: 'check' }); } else { await shareVerse(verse, order, t('brand')); } }} style={{ flex: 1, alignItems: 'center', gap: 7 }}>
             <View style={{ width: 52, height: 52, borderRadius: 18, backgroundColor: theme.fill, borderWidth: 0.5, borderColor: theme.hair, alignItems: 'center', justifyContent: 'center' }}>
               <Icon name={o.icon} size={22} color={theme.goldInk} />
             </View>

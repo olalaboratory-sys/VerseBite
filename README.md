@@ -54,7 +54,8 @@ Order** are three independent axes, exactly as specified in the handoff.
 - Full EN/KO localization + light/dark theme
 
 ## Known gaps before production (carried from the handoff QC)
-1. Author the remaining 18 study guides (v28–v45 fall back to "coming soon").
+1. ~~Author the remaining 18 study guides~~ ✅ all 45 verses now have a full study guide.
 2. Expand the Korean word dictionary + stemming for learning-mode parity.
-3. Wire real backends: payments, 8 AM notifications, AI image pipeline, AI reflection, native share/date-picker.
+3. Wire real backends: payments (IAP/RevenueCat), 8 AM notifications (expo-notifications), AI image pipeline, AI reflection. ✅ native verse sharing now uses the OS share sheet.
 4. Replace Unsplash stand-in imagery with the AI image pipeline.
+5. Native date picker for the Saved date search (currently free-text).

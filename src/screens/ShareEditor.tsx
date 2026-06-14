@@ -11,6 +11,7 @@ import { Scrim } from '@/components/Scrim';
 import { CatChip } from '@/components/CatChip';
 import { Icon } from '@/components/Icon';
 import { PlusChip, OverlayScreen, CircleBack } from '@/components/ui';
+import { shareVerse } from '@/utils/share';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const hasKo = (s: string) => /[가-힣]/.test(s);
@@ -126,7 +127,7 @@ export function ShareEditorScreen({ verse }: { verse: Verse }) {
         <Section label="Export size" />
         <Rail items={[['story', 'Story'], ['square', 'Square'], ['card', 'Card']]} value={size} onChange={setSize} />
 
-        <Pressable onPress={() => { s.bumpShare(); s.closeOverlay(); s.showToast({ text: 'Shared · ' + dim.label, icon: 'share' }); }} style={{ marginTop: 18, height: 52, borderRadius: 14, backgroundColor: theme.goldInk, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+        <Pressable onPress={async () => { s.bumpShare(); await shareVerse(verse, order, t('brand'), msg); s.closeOverlay(); }} style={{ marginTop: 18, height: 52, borderRadius: 14, backgroundColor: theme.goldInk, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
           <Icon name="share" size={19} color="#fff" /><Text style={{ fontSize: 16, fontWeight: '600', color: '#fff' }}>Share verse card</Text>
         </Pressable>
       </ScrollView>
