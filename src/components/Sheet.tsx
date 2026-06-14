@@ -3,16 +3,18 @@ import React, { useEffect, useRef } from 'react';
 import { Animated, Dimensions, Easing, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme/ThemeProvider';
+import { useReducedMotion } from '@/utils/useReducedMotion';
 
 export function VBSheet({ children, onClose, maxH = 0.88 }: { children: React.ReactNode; onClose: () => void; maxH?: number }) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
+  const reduced = useReducedMotion();
   const slide = useRef(new Animated.Value(0)).current;
   const screenH = Dimensions.get('window').height;
 
   useEffect(() => {
-    Animated.timing(slide, { toValue: 1, duration: 320, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
-  }, [slide]);
+    Animated.timing(slide, { toValue: 1, duration: reduced ? 0 : 320, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
+  }, [slide, reduced]);
 
   const translateY = slide.interpolate({ inputRange: [0, 1], outputRange: [60, 0] });
   const opacity = slide;

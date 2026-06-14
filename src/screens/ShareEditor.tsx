@@ -88,7 +88,7 @@ export function ShareEditorScreen({ verse }: { verse: Verse }) {
         <View style={{ width: 38 }} />
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 36 }}>
+      <ScrollView keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 36 }}>
         {/* preview */}
         <View style={{ alignItems: 'center', paddingVertical: 12 }}>
           <View style={[{ width: dim.w, aspectRatio: dim.ratio, borderRadius: 16, overflow: 'hidden' }, theme.shadow]}>

@@ -10,6 +10,7 @@ import { generateImage, imageFor } from '@/services/images';
 import { fetchStudyGuide, GeneratedGuide } from '@/services/studyguide';
 import { fetchReflection, Reflection } from '@/services/ai';
 import { hasImageGen, hasStudyGen, hasAI } from '@/config';
+import { hapticTap, hapticLight, hapticSuccess } from '@/utils/haptics';
 
 export type Plan = 'free' | 'plus' | 'lifetime';
 export type Learn = 'en' | 'ko' | 'off';
@@ -254,7 +255,7 @@ function useStoreValue() {
       const n = { ...prev };
       const ex = n[id] || ({} as SavedEntry);
       n[id] = { note: note !== undefined ? note : ex.note || '', savedAt: ex.savedAt || shortDate(), ts: ex.ts || Date.now(), guide: ex.guide || false };
-      if (note === undefined) showToast({ text: 't.savedVerse', icon: 'check' });
+      if (note === undefined) { showToast({ text: 't.savedVerse', icon: 'check' }); hapticSuccess(); }
       return n;
     });
   }, [saved, showToast]);
@@ -271,6 +272,7 @@ function useStoreValue() {
   }, [showToast]);
 
   const refresh = useCallback(() => {
+    hapticLight();
     setCounts((p) => ({ ...p, refreshes: (p.refreshes || 0) + 1 }));
     setTodayId((cur) => {
       const v = vbVerse(cur)!;
@@ -319,6 +321,7 @@ function useStoreValue() {
     }
     setPlan(type);
     setSheet(null);
+    hapticSuccess();
     showToast({ text: type === 'lifetime' ? 't.lifeUnlocked' : 't.plusActive', icon: 'sparkle' });
   }, [showToast]);
 
@@ -339,7 +342,7 @@ function useStoreValue() {
     });
   }, [showToast]);
 
-  const pickResonance = useCallback((feeling: string) => setResonance((prev) => ({ ...prev, [todayKey]: feeling })), [todayKey]);
+  const pickResonance = useCallback((feeling: string) => { hapticTap(); setResonance((prev) => ({ ...prev, [todayKey]: feeling })); }, [todayKey]);
 
   // ── AI image generation (on demand, cached per verse) ──
   const ensureImage = useCallback((id: string) => {
@@ -406,7 +409,7 @@ function useStoreValue() {
   }, []);
 
   // helpers for tabs / overlays
-  const switchTab = useCallback((id: typeof tab) => { setOverlay(null); setSheet(null); setTab(id); }, []);
+  const switchTab = useCallback((id: typeof tab) => { hapticTap(); setOverlay(null); setSheet(null); setTab(id); }, []);
   const closeOverlay = useCallback(() => setOverlay(null), []);
   const openVerse = useCallback((verse: Verse) => setOverlay({ type: 'verse', verse }), []);
   const openCat = useCallback((cat: string) => setOverlay({ type: 'cat', cat }), []);

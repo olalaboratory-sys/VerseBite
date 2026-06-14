@@ -1,5 +1,5 @@
-import React from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import React, { useEffect } from 'react';
+import { ActivityIndicator, BackHandler, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFonts, CormorantGaramond_400Regular, CormorantGaramond_500Medium, CormorantGaramond_600SemiBold } from '@expo-google-fonts/cormorant-garamond';
@@ -71,6 +71,18 @@ function Root() {
   const s = useStore();
   const theme = useTheme();
   const insets = useSafeAreaInsets();
+
+  // Android hardware back: close sheet → overlay → return to Today before exit.
+  useEffect(() => {
+    const onBack = () => {
+      if (s.sheet) { s.setSheet(null); return true; }
+      if (s.overlay) { s.closeOverlay(); return true; }
+      if (s.onboarded && s.tab !== 'today') { s.setTab('today'); return true; }
+      return false;
+    };
+    const sub = BackHandler.addEventListener('hardwareBackPress', onBack);
+    return () => sub.remove();
+  }, [s]);
 
   if (!s.hydrated) {
     return <View style={{ flex: 1, backgroundColor: theme.bg, alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator color={theme.goldInk} /></View>;

@@ -7,6 +7,7 @@ import { Icon, IconName } from './Icon';
 import { useTheme } from '@/theme/ThemeProvider';
 import { GOLD_DEEP, serifFamily } from '@/theme/tokens';
 import { useI18n } from '@/i18n';
+import { useReducedMotion } from '@/utils/useReducedMotion';
 
 // Scrollable tab screen with top safe-area padding.
 export function ScrollScreen({ children }: { children: React.ReactNode }) {
@@ -105,11 +106,12 @@ export function Switch({ checked, onChange }: { checked: boolean; onChange: (v: 
 // Pushed overlay shell — fills its parent (which is bounded above the tab bar).
 export function OverlayScreen({ children, animateKey }: { children: React.ReactNode; animateKey?: string }) {
   const theme = useTheme();
+  const reduced = useReducedMotion();
   const x = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     x.setValue(0);
-    Animated.timing(x, { toValue: 1, duration: 320, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
-  }, [x, animateKey]);
+    Animated.timing(x, { toValue: 1, duration: reduced ? 0 : 320, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
+  }, [x, animateKey, reduced]);
   const translateX = x.interpolate({ inputRange: [0, 1], outputRange: [26, 0] });
   return (
     <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: theme.bg, transform: [{ translateX }] }]}>
@@ -121,7 +123,7 @@ export function OverlayScreen({ children, animateKey }: { children: React.ReactN
 // Glass circular back button used on image headers.
 export function GlassBack({ onPress }: { onPress: () => void }) {
   return (
-    <Pressable onPress={onPress} style={{ width: 40, height: 40, borderRadius: 99, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.18)' }}>
+    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel="Back" hitSlop={8} style={({ pressed }) => ({ width: 40, height: 40, borderRadius: 99, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.18)', opacity: pressed ? 0.6 : 1 })}>
       <Icon name="back" size={20} color="#fff" />
     </Pressable>
   );
@@ -131,7 +133,7 @@ export function GlassBack({ onPress }: { onPress: () => void }) {
 export function CircleBack({ onPress }: { onPress: () => void }) {
   const theme = useTheme();
   return (
-    <Pressable onPress={onPress} style={{ width: 38, height: 38, borderRadius: 99, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.fill }}>
+    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel="Back" hitSlop={8} style={({ pressed }) => ({ width: 38, height: 38, borderRadius: 99, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.fill, opacity: pressed ? 0.6 : 1 })}>
       <Icon name="back" size={20} color={theme.labelSecondary} />
     </Pressable>
   );

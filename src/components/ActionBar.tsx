@@ -13,7 +13,7 @@ export function ActionBar({ saved, isPaid = true, onRefresh, onSave, onNote, onS
   const theme = useTheme();
   const { t } = useI18n();
   const Btn = ({ icon, label, active, locked, fill, onPress }: BtnProps) => (
-    <Pressable onPress={onPress} style={({ pressed }) => ({ flex: 1, alignItems: 'center', gap: 6, paddingVertical: 10, opacity: pressed ? 0.55 : 1 })}>
+    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={label} style={({ pressed }) => ({ flex: 1, alignItems: 'center', gap: 6, paddingVertical: 10, opacity: pressed ? 0.55 : 1 })}>
       <View style={{ width: 46, height: 46, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: active ? mix(theme.gold, theme.card, 24) : theme.fill, borderWidth: 0.5, borderColor: theme.hair }}>
         <Icon name={icon} size={22} color={active ? theme.goldInk : theme.labelSecondary} fill={fill} />
         {locked && (

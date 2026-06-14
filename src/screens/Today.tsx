@@ -49,7 +49,7 @@ export function TodayScreen() {
       </ScrollView>
 
       <View style={{ paddingHorizontal: 16 }}>
-        <Pressable onPress={() => s.openVerse(verse)}>
+        <Pressable onPress={() => s.openVerse(verse)} accessibilityRole="button" style={({ pressed }) => ({ opacity: pressed ? 0.92 : 1 })}>
           <VerseCard verse={verse} layout="editorial" order={s.order} learn={s.learn} onWord={s.onWord} savedWords={s.savedWordSet} imgSrc={s.imageSrc(verse)} />
         </Pressable>
 

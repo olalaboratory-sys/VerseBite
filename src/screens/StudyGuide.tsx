@@ -117,7 +117,7 @@ export function StudyGuideScreen({ verse }: { verse: Verse }) {
         </View>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 40, gap: 12 }}>
+      <ScrollView keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 40, gap: 12 }}>
         {/* selected verse */}
         <View style={[{ borderRadius: 18, overflow: 'hidden' }, theme.shadowSm]}>
           <VBImage cat={verse.cat} src={s.imageSrc(verse)} radius={18} style={{ minHeight: 172 }} scrim={<Scrim colors={['rgba(28,22,17,0.45)', 'rgba(28,22,17,0.20)', 'rgba(28,22,17,0.88)']} locations={[0, 0.36, 0.92]} />}>

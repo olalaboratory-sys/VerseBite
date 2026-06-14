@@ -24,7 +24,7 @@ export function TabBar({ active, onChange }: { active: TabId; onChange: (id: Tab
         {tabs.map((tab) => {
           const on = tab.id === active;
           return (
-            <Pressable key={tab.id} onPress={() => onChange(tab.id)} style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 3.5 }}>
+            <Pressable key={tab.id} onPress={() => onChange(tab.id)} accessibilityRole="tab" accessibilityState={{ selected: on }} accessibilityLabel={tab.label} style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 3.5 }}>
               <Icon name={tab.icon} size={25} color={on ? theme.goldInk : theme.labelTertiary} fill={on && tab.id === 'saved'} strokeWidth={on ? 1.9 : 1.7} />
               <Text style={{ fontSize: 10, fontWeight: on ? '600' : '500', letterSpacing: 0.1, color: on ? theme.goldInk : theme.labelTertiary }}>{tab.label}</Text>
             </Pressable>

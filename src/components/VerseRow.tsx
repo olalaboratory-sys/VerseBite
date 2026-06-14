@@ -28,7 +28,7 @@ export function VerseRow({ verse, order = 'en', saved, note, savedDate, guide, o
   const { t, lang } = useI18n();
   const [a, b] = vbOrder(verse, order);
   return (
-    <Pressable onPress={onOpen} style={{ flexDirection: 'row', gap: 14, paddingHorizontal: 16, paddingVertical: 14, backgroundColor: theme.card }}>
+    <Pressable onPress={onOpen} accessibilityRole="button" style={({ pressed }) => ({ flexDirection: 'row', gap: 14, paddingHorizontal: 16, paddingVertical: 14, backgroundColor: pressed ? theme.fill : theme.card })}>
       <VBImage cat={verse.cat} src={imgSrc ?? imageFor(verse)} radius={14} style={{ width: 66, height: 66 }} />
       <View style={{ flex: 1 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 7 }}>
