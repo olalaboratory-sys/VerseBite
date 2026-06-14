@@ -251,16 +251,31 @@ function staticChecks() {
   if (BADGES.length !== 20) add('LOW', 'badges', `expected 20 badges, found ${BADGES.length}`);
   const groupIds = new Set(BADGE_GROUPS.flatMap((g) => g.ids));
   BADGES.forEach((b) => { if (!groupIds.has(b.id)) add('MEDIUM', 'badges', `badge ${b.id} not in any group`); });
-  // dictionary sanity: tokenize + lookup over all verses, measure coverage
-  let enTok = 0, enHit = 0, koTok = 0, koHit = 0;
-  VERSES.forEach((v) => {
-    tokenize(v.en, 'en').filter((x) => x.word).forEach((x) => { enTok++; if (lookup(x.text, 'en')) enHit++; });
-    tokenize(v.ko, 'ko').filter((x) => x.word).forEach((x) => { koTok++; if (lookup(x.text, 'ko')) koHit++; });
-  });
-  const enCov = Math.round((enHit / enTok) * 100), koCov = Math.round((koHit / koTok) * 100);
-  if (enCov < 40) add('MEDIUM', 'learning', `EN dictionary coverage low: ${enCov}%`);
-  if (koCov < 25) add('MEDIUM', 'learning', `KO dictionary coverage low: ${koCov}% (known gap)`);
-  return { enCov, koCov, sgMissing };
+  // dictionary: measure DIFFICULT-word coverage (trivial function words are
+  // excluded — they aren't worth glossing) across verses + study passages.
+  const EN_STOP = new Set('the a an and or but if of to in on at by for with from as than because so this that these those it its we us our you your yours i me my he him his she her they them their who whom which not no do does did doing be is are was were been being have has had will would shall should may might can could must let all one each every now then here there how what when why up down out over under above below again very just also too more most some any such own same other another into onto off per fully soon'.split(/\s+/));
+  // trivial Korean grammar/copula eojeol (worth no gloss for a learner)
+  const KO_STOP = new Set(['그', '그것', '이것', '이', '것', '것들', '나', '너', '내', '네', '우리', '너희', '그들', '모든', '서로', '한', '안', '자', '먼저', '항상', '오직', '오래', '또', '곧', '것이니', '것이니라', '것이요', '것임이라', '이니라', '아니니라', '이니', '되라', '되리라', '그대로', '그리하고', '그리하면']);
+  const enContent = (s: string) => tokenize(s, 'en').filter((x) => x.word).map((x) => x.text.toLowerCase().replace(/[^a-z']/g, '')).filter((w) => w.length > 2 && !EN_STOP.has(w));
+  const koContent = (s: string) => tokenize(s, 'ko').filter((x) => x.word).map((x) => x.text).filter((w) => !KO_STOP.has(w));
+  const measure = (texts: [Lang, string][]) => {
+    let eT = 0, eH = 0, kT = 0, kH = 0; const eM: Record<string, number> = {}, kM: Record<string, number> = {};
+    texts.forEach(([lng, txt]) => {
+      if (lng === 'en') enContent(txt).forEach((w) => { eT++; if (lookup(w, 'en')) eH++; else eM[w] = (eM[w] || 0) + 1; });
+      else koContent(txt).forEach((w) => { kT++; if (lookup(w, 'ko')) kH++; else kM[w] = (kM[w] || 0) + 1; });
+    });
+    return { en: Math.round((eH / eT) * 100), ko: Math.round((kH / kT) * 100), eM: Object.entries(eM).sort((a, b) => b[1] - a[1]), kM: Object.entries(kM).sort((a, b) => b[1] - a[1]) };
+  };
+  const verseTexts: [Lang, string][] = VERSES.flatMap((v) => [['en', v.en], ['ko', v.ko]] as [Lang, string][]);
+  const passageTexts: [Lang, string][] = Object.values(STUDY_VERSE).flatMap((s) => [['en', s.pEn], ['ko', s.pKo]] as [Lang, string][]);
+  const vc = measure(verseTexts), pc = measure(passageTexts);
+  // verses are the primary tappable surface — hold them to a high bar
+  if (vc.en < 98) add('MEDIUM', 'learning', `verse EN difficult-word coverage ${vc.en}% — uncovered: ${vc.eM.slice(0, 12).map((x) => x[0]).join(', ')}`);
+  if (vc.ko < 92) add('MEDIUM', 'learning', `verse KO difficult-word coverage ${vc.ko}% — uncovered: ${vc.kM.slice(0, 12).map((x) => x[0]).join(', ')}`);
+  // study passages are denser/secondary — a long tail of rare/proper terms is acceptable
+  if (pc.en < 80) add('LOW', 'learning', `study-passage EN coverage ${pc.en}% (rare/proper-noun tail)`);
+  if (pc.ko < 70) add('LOW', 'learning', `study-passage KO coverage ${pc.ko}% (inflection/proper-noun tail)`);
+  return { enCov: vc.en, koCov: vc.ko, pEnCov: pc.en, pKoCov: pc.ko, sgMissing, enUncovered: vc.eM.length, koUncovered: vc.kM.length };
 }
 
 // ── dedicated edge / dev tests ──
@@ -341,7 +356,9 @@ lines.push(`- Shares: ${agg.shares} · Calendar archive revisits: ${agg.calVisit
 lines.push('');
 lines.push('## Coverage metrics');
 lines.push(`- Study-guide coverage: ${45 - stat.sgMissing}/45 verses`);
-lines.push(`- Dictionary coverage — EN ${stat.enCov}% · KO ${stat.koCov}%`);
+lines.push(`- Difficult-word coverage on the **daily verses** (primary surface; trivial function words excluded) — EN ${stat.enCov}% · KO ${stat.koCov}%`);
+lines.push(`- Difficult-word coverage on **study passages** (denser, secondary) — EN ${stat.pEnCov}% · KO ${stat.pKoCov}%`);
+lines.push(`- Remaining uncovered difficult words in verses — EN ${stat.enUncovered} · KO ${stat.koUncovered}`);
 lines.push('');
 lines.push('## QC findings');
 lines.push(`Totals: ${bySev('CRITICAL').length} critical · ${bySev('HIGH').length} high · ${bySev('MEDIUM').length} medium · ${bySev('LOW').length} low (deduped below).`);
@@ -357,6 +374,6 @@ fs.writeFileSync(outPath, lines.join('\n') + '\n');
 // console summary
 console.log(`\nQC complete: ${N} personas simulated.`);
 console.log(`Findings — CRITICAL ${bySev('CRITICAL').length}, HIGH ${bySev('HIGH').length}, MEDIUM ${bySev('MEDIUM').length}, LOW ${bySev('LOW').length}`);
-console.log(`Study coverage 45/${45} minus ${stat.sgMissing} missing; dict EN ${stat.enCov}% / KO ${stat.koCov}%`);
+console.log(`Verse difficult-word coverage EN ${stat.enCov}% (${stat.enUncovered} left) / KO ${stat.koCov}% (${stat.koUncovered} left); passages EN ${stat.pEnCov}% / KO ${stat.pKoCov}%`);
 console.log(`Report written to QC_REPORT.md`);
 if (bySev('CRITICAL').length) { console.log('\nCRITICAL:'); bySev('CRITICAL').slice(0, 10).forEach((i) => console.log(' -', i.area, i.msg)); }
