@@ -1,5 +1,16 @@
 import React, { useEffect } from 'react';
-import { ActivityIndicator, BackHandler, View } from 'react-native';
+import { ActivityIndicator, BackHandler, Text as RNText, TextInput as RNTextInput, View } from 'react-native';
+
+// Let text scale with OS Dynamic Type for accessibility, but cap it so very
+// large settings don't shatter the design-heavy layouts.
+(RNText as unknown as { defaultProps?: Record<string, unknown> }).defaultProps = {
+  ...(RNText as unknown as { defaultProps?: Record<string, unknown> }).defaultProps,
+  maxFontSizeMultiplier: 1.3,
+};
+(RNTextInput as unknown as { defaultProps?: Record<string, unknown> }).defaultProps = {
+  ...(RNTextInput as unknown as { defaultProps?: Record<string, unknown> }).defaultProps,
+  maxFontSizeMultiplier: 1.3,
+};
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFonts, CormorantGaramond_400Regular, CormorantGaramond_500Medium, CormorantGaramond_600SemiBold } from '@expo-google-fonts/cormorant-garamond';

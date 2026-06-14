@@ -299,6 +299,7 @@ function useStoreValue() {
   }, [seen]);
 
   const toggleSaveWord = useCallback((wordObj: WordEntry) => {
+    hapticTap();
     setWords((prev) => {
       const n = { ...prev };
       if (n[wordObj.key]) { delete n[wordObj.key]; showToast({ text: 't.removedWord', icon: 'globe' }); }
@@ -334,6 +335,7 @@ function useStoreValue() {
   const bumpShare = useCallback(() => setCounts((p) => ({ ...p, shares: (p.shares || 0) + 1 })), []);
 
   const saveStudyGuide = useCallback((id: string) => {
+    hapticTap();
     setSaved((prev) => {
       const ex = prev[id] || ({} as SavedEntry);
       const on = !ex.guide;

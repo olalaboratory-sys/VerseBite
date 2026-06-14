@@ -40,7 +40,7 @@ export function TodayScreen() {
         {CATEGORIES.map((c) => {
           const on = c.id === verse.cat;
           return (
-            <Pressable key={c.id} onPress={() => s.pickCategory(c.id)} style={{ flexDirection: 'row', alignItems: 'center', gap: 7, paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 0.5, borderColor: on ? c.tint : theme.hair, backgroundColor: on ? mix(c.tint, theme.card, 22) : theme.card }}>
+            <Pressable key={c.id} onPress={() => s.pickCategory(c.id)} accessibilityRole="button" accessibilityLabel={catName(c)} accessibilityState={{ selected: on }} style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 7, paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 0.5, borderColor: on ? c.tint : theme.hair, backgroundColor: on ? mix(c.tint, theme.card, 22) : theme.card, opacity: pressed ? 0.7 : 1 })}>
               <View style={{ width: 7, height: 7, borderRadius: 99, backgroundColor: c.tint, opacity: on ? 1 : 0.45 }} />
               <Text style={{ fontSize: 13, fontWeight: on ? '600' : '500', color: on ? mix(c.tint, '#2A211A', 64) : theme.labelSecondary }}>{catName(c)}</Text>
             </Pressable>

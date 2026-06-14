@@ -74,7 +74,7 @@ export function SavedScreen() {
               {filters.map((f) => {
                 const on = filter === f.id;
                 return (
-                  <Pressable key={f.id} onPress={() => setFilter(f.id)} style={{ paddingVertical: 8, paddingHorizontal: 15, borderRadius: 999, borderWidth: 0.5, borderColor: theme.hair, backgroundColor: on ? theme.goldInk : theme.card }}>
+                  <Pressable key={f.id} onPress={() => setFilter(f.id)} accessibilityRole="button" accessibilityState={{ selected: on }} style={({ pressed }) => ({ paddingVertical: 8, paddingHorizontal: 15, borderRadius: 999, borderWidth: 0.5, borderColor: theme.hair, backgroundColor: on ? theme.goldInk : theme.card, opacity: pressed ? 0.7 : 1 })}>
                     <Text style={{ fontSize: 13, fontWeight: on ? '600' : '500', color: on ? '#fff' : theme.labelSecondary }}>{f.label}</Text>
                   </Pressable>
                 );
