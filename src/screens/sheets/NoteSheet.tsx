@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { imageFor } from '@/services/images';
 import { Pressable, Text, TextInput, View } from 'react-native';
 import { Verse } from '@/data/content';
 import { vbOrder } from '@/data/order';
@@ -23,7 +24,7 @@ export function NoteSheet({ verse, order, initial = '', onCancel, onSave }: { ve
       </View>
       <View style={{ paddingHorizontal: 20 }}>
         <View style={{ flexDirection: 'row', gap: 12, padding: 12, backgroundColor: theme.card, borderRadius: 16, borderWidth: 0.5, borderColor: theme.hair, marginBottom: 16 }}>
-          <VBImage cat={verse.cat} src={verse.img} radius={11} style={{ width: 50, height: 50 }} />
+          <VBImage cat={verse.cat} src={imageFor(verse)} radius={11} style={{ width: 50, height: 50 }} />
           <View style={{ flex: 1 }}>
             <Text style={{ fontSize: 10, fontWeight: '600', letterSpacing: 1, textTransform: 'uppercase', color: theme.goldInk }}>{a.ref}</Text>
             <Text numberOfLines={2} style={{ marginTop: 5, fontFamily: a.lang === 'en' ? serifFamily(400) : undefined, fontSize: 14, lineHeight: 19, color: theme.labelSecondary }}>{a.text}</Text>

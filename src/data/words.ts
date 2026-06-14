@@ -242,10 +242,53 @@ export const WORDS: { en: Record<string, EnEntry>; ko: Record<string, KoEntry> }
     '부족': { def: 'lack; shortage', en: 'lack', roman: 'bu-jok' },
     '후히': { def: 'generously; abundantly', en: 'generously', roman: 'hu-hi' },
     '빛': { def: 'light', en: 'light', roman: 'bit' },
+    // ── extended passage vocabulary (study-guide passages) ──
+    '형편': { def: 'circumstances; one’s situation', en: 'circumstances', roman: 'hyeong-pyeon' },
+    '자족': { def: 'contentment', en: 'contentment', roman: 'ja-jok' },
+    '견디': { def: 'to endure; bear', en: 'endure', roman: 'gyeon-di' },
+    '화평': { def: 'peace; peaceableness', en: 'peace', roman: 'hwa-pyeong' },
+    '긍휼': { def: 'compassion; mercy', en: 'compassion', roman: 'geung-hyul' },
+    '겸손': { def: 'humility', en: 'humility', roman: 'gyeom-son' },
+    '양순': { def: 'gentle; submissive', en: 'gentle', roman: 'yang-sun' },
+    '정직': { def: 'upright; honest', en: 'upright', roman: 'jeong-jik' },
+    '방패': { def: 'a shield', en: 'shield', roman: 'bang-pae' },
+    '진리': { def: 'truth', en: 'truth', roman: 'jin-ri' },
+    '두려움': { def: 'fear', en: 'fear', roman: 'du-ryeo-um' },
+    '형벌': { def: 'punishment', en: 'punishment', roman: 'hyeong-beol' },
+    '계명': { def: 'a commandment', en: 'commandment', roman: 'gye-myeong' },
+    '명령': { def: 'a command', en: 'command', roman: 'myeong-ryeong' },
+    '공경': { def: 'to honor; revere', en: 'honor', roman: 'gong-gyeong' },
+    '부모': { def: 'parents', en: 'parents', roman: 'bu-mo' },
+    '생명': { def: 'life', en: 'life', roman: 'saeng-myeong' },
+    '자녀': { def: 'children', en: 'children', roman: 'ja-nyeo' },
+    '가르치': { def: 'to teach', en: 'teach', roman: 'ga-reu-chi' },
+    '추수': { def: 'harvest', en: 'harvest', roman: 'chu-su' },
+    '낙심': { def: 'to be discouraged', en: 'be discouraged', roman: 'nak-sim' },
+    '기도': { def: 'prayer', en: 'prayer', roman: 'gi-do' },
+    '자백': { def: 'confession', en: 'confession', roman: 'ja-baek' },
+    '불의': { def: 'unrighteousness', en: 'unrighteousness', roman: 'bur-ui' },
+    '비판': { def: 'to judge; criticize', en: 'judge', roman: 'bi-pan' },
+    '정죄': { def: 'to condemn', en: 'condemn', roman: 'jeong-joe' },
+    '노래': { def: 'a song', en: 'song', roman: 'no-rae' },
+    '인자': { def: 'lovingkindness; steadfast love', en: 'lovingkindness', roman: 'in-ja' },
+    '성실': { def: 'faithfulness', en: 'faithfulness', roman: 'seong-sil' },
+    '화목': { def: 'reconciliation; harmony', en: 'reconcile', roman: 'hwa-mok' },
+    '보호': { def: 'to protect', en: 'protect', roman: 'bo-ho' },
+    '지키': { def: 'to keep; guard', en: 'keep · guard', roman: 'ji-ki' },
+    '목숨': { def: 'life; one’s life', en: 'life', roman: 'mok-sum' },
+    '열매': { def: 'fruit', en: 'fruit', roman: 'yeol-mae' },
   },
 };
 
-const KO_PARTICLES = ['에게는', '에서', '으로', '로서', '이라', '라는', '에게', '께서', '처럼', '보다', '마다', '부터', '까지', '이나', '으로', '은', '는', '이', '가', '을', '를', '에', '의', '도', '와', '과', '로', '만', '며', '고', '은', '님', '들', '이여', '여', '라', '한', '할', '하', '함', '이라도'];
+// Particles (josa) + common verb/sentence endings, longest first so the most
+// specific suffix is stripped before falling back to shorter ones.
+const KO_PARTICLES = [
+  '하느니라', '하시며', '느니라', '으리라', '하리라', '하니라', '에게는', '이라도',
+  '으로서', '에서', '으로', '로서', '이라', '라는', '리라', '하라', '으라', '하고', '하며', '으며',
+  '에게', '께서', '처럼', '보다', '마다', '부터', '까지', '이나',
+  '은', '는', '이', '가', '을', '를', '에', '의', '도', '와', '과', '로', '만', '며', '고', '님', '들',
+  '이여', '여', '라', '한', '할', '하', '함', '지', '자',
+];
 
 export type Token = { text: string; word: boolean };
 

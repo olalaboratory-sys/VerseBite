@@ -1,4 +1,5 @@
 import React from 'react';
+import { imageFor } from '@/services/images';
 import { Pressable, Text, View } from 'react-native';
 import { Verse, vbCategory } from '@/data/content';
 import { vbOrder } from '@/data/order';
@@ -28,7 +29,7 @@ export function ShareSheet({ verse, order, isPaid, onEditor, onClose, onToast }:
       <Text style={{ paddingTop: 14, textAlign: 'center', fontSize: 17, fontWeight: '600', color: theme.labelPrimary }}>Share Verse Card</Text>
       <View style={{ paddingHorizontal: 44, paddingTop: 16, paddingBottom: 8 }}>
         <View style={[{ borderRadius: 18, overflow: 'hidden', aspectRatio: 9 / 16 }, theme.shadow]}>
-          <VBImage cat={verse.cat} src={verse.img} radius={18} style={{ flex: 1 }} scrim={<Scrim colors={['rgba(28,22,17,0.10)', 'rgba(28,22,17,0.86)']} />}>
+          <VBImage cat={verse.cat} src={imageFor(verse)} radius={18} style={{ flex: 1 }} scrim={<Scrim colors={['rgba(28,22,17,0.10)', 'rgba(28,22,17,0.86)']} />}>
             <View style={{ position: 'absolute', top: 14, left: 0, right: 0, alignItems: 'center' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                 <Icon name="quote" size={13} color={theme.gold} />

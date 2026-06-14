@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { imageFor } from '@/services/images';
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { Verse, vbCategory } from '@/data/content';
 import { vbOrder } from '@/data/order';
@@ -100,7 +101,7 @@ export function ShareEditorScreen({ verse }: { verse: Verse }) {
                 <Text style={{ fontSize: 9, fontWeight: '600', letterSpacing: 1, textTransform: 'uppercase', color: theme.goldInk }}>{a.ref} · {t('brand')}</Text>
               </View>
             ) : (
-              <VBImage cat={verse.cat} src={verse.img} radius={16} style={{ flex: 1 }} scrim={<Scrim colors={tpl === 'minimal' ? ['rgba(28,22,17,0.05)', 'rgba(28,22,17,0.55)'] : ['rgba(28,22,17,0.10)', 'rgba(28,22,17,0.85)']} />}>
+              <VBImage cat={verse.cat} src={imageFor(verse)} radius={16} style={{ flex: 1 }} scrim={<Scrim colors={tpl === 'minimal' ? ['rgba(28,22,17,0.05)', 'rgba(28,22,17,0.55)'] : ['rgba(28,22,17,0.10)', 'rgba(28,22,17,0.85)']} />}>
                 <View style={{ position: 'absolute', left: 14, right: 14, bottom: 14, alignItems: tpl === 'minimal' ? 'flex-start' : 'center' }}>
                   {tpl !== 'minimal' ? <Text style={{ fontSize: 8, fontWeight: '600', letterSpacing: 1.4, textTransform: 'uppercase', color: theme.gold }}>{c.label} · {c.ko}</Text> : null}
                   {showLines.map((line, i) => <Text key={i} style={{ fontFamily: hasKo(line) ? undefined : serifFamily(500), fontWeight: '500', fontSize: i === 0 ? 14 : 11, lineHeight: i === 0 ? 18 : 15, color: i === 0 ? '#fff' : 'rgba(255,255,255,0.8)', marginTop: 7, textAlign: tpl === 'minimal' ? 'left' : 'center' }}>{line}</Text>)}

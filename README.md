@@ -17,6 +17,12 @@ npm run lint              # tsc --noEmit
 ```
 > Outbound access to Expo's version API may be restricted in some sandboxes; dependencies are pinned to SDK-54-compatible versions so `npm install` works offline-of-that-API.
 
+## Integrations (optional, env-driven)
+All degrade gracefully when unset. See [`backend/README.md`](backend/README.md).
+- `EXPO_PUBLIC_AI_ENDPOINT` — AI reflection proxy (Anthropic via Supabase Edge Function)
+- `EXPO_PUBLIC_RC_API_KEY` — RevenueCat in-app purchases
+- `EXPO_PUBLIC_IMAGE_BASE` — CDN base for AI-generated verse imagery
+
 ## Architecture
 ```
 src/

@@ -6,9 +6,10 @@ import { serifFamily } from '@/theme/tokens';
 import { VBSheet } from '@/components/Sheet';
 import { Icon, IconName } from '@/components/Icon';
 import { PlusChip, Button } from '@/components/ui';
+import { restorePurchases } from '@/services/purchases';
 import type { Plan, Toast } from '@/store/AppStore';
 
-export function PaywallSheet({ reason, onChoose, onClose, onToast }: { reason: string | null; onChoose: (p: Plan) => void; onClose: () => void; onToast: (t: Toast) => void }) {
+export function PaywallSheet({ reason, onChoose, onClose, onToast }: { reason: string | null; onChoose: (p: Plan, sku?: string) => void; onClose: () => void; onToast: (t: Toast) => void }) {
   const theme = useTheme();
   const { t, lang } = useI18n();
   const [sel, setSel] = useState('yearly');
@@ -70,10 +71,10 @@ export function PaywallSheet({ reason, onChoose, onClose, onToast }: { reason: s
           })}
         </View>
         <View style={{ paddingHorizontal: 24, paddingTop: 16, paddingBottom: 8 }}>
-          <Button label={sel === 'lifetime' ? t('pw.unlockLife') : t('pw.startPlus')} onPress={() => onChoose(sel === 'lifetime' ? 'lifetime' : 'plus')} />
+          <Button label={sel === 'lifetime' ? t('pw.unlockLife') : t('pw.startPlus')} onPress={() => onChoose(sel === 'lifetime' ? 'lifetime' : 'plus', sel)} />
         </View>
         <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 18, paddingTop: 4, paddingBottom: 6 }}>
-          <Pressable onPress={() => onToast({ text: t('pw.restore') + ' ✓', icon: 'check' })}><Text style={{ fontSize: 13, fontWeight: '500', color: theme.goldInk }}>{t('pw.restore')}</Text></Pressable>
+          <Pressable onPress={async () => { const ok = await restorePurchases(); onToast({ text: ok ? 'pw.restored' : 'pw.nothingToRestore', icon: ok ? 'check' : 'close' }); }}><Text style={{ fontSize: 13, fontWeight: '500', color: theme.goldInk }}>{t('pw.restore')}</Text></Pressable>
           <Text style={{ color: theme.hair }}>·</Text>
           <Pressable onPress={() => onToast({ text: 'pw.terms', icon: 'check' })}><Text style={{ fontSize: 13, fontWeight: '500', color: theme.labelTertiary }}>{t('pw.terms')}</Text></Pressable>
         </View>

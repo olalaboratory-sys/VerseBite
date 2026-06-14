@@ -5,6 +5,7 @@ import { VERSES, Verse, vbVerse, vbVersesByCat } from '@/data/content';
 import { dateKey, pickDaily, shortDate } from '@/data/daily';
 import { lookup } from '@/data/words';
 import { scheduleDailyReminder, cancelDailyReminder } from '@/utils/notifications';
+import { purchasePlan, configurePurchases } from '@/services/purchases';
 
 export type Plan = 'free' | 'plus' | 'lifetime';
 export type Learn = 'en' | 'ko' | 'off';
@@ -113,6 +114,7 @@ function useStoreValue() {
       signupRef.current = su || dateKey();
       if (!su) save(K.signup, dateKey());
       setHydrated(true);
+      configurePurchases();
     })();
   }, []);
 
@@ -260,7 +262,15 @@ function useStoreValue() {
 
   const openPaywall = useCallback((reason: string | null) => setSheet({ type: 'paywall', reason }), []);
   const requirePaid = useCallback((reason: string, fn: () => void) => { if (plan !== 'free') fn(); else openPaywall(reason); }, [plan, openPaywall]);
-  const choosePlan = useCallback((type: Plan) => { setPlan(type); setSheet(null); showToast({ text: type === 'lifetime' ? 't.lifeUnlocked' : 't.plusActive', icon: 'sparkle' }); }, [showToast]);
+  const choosePlan = useCallback(async (type: Plan, sku: string = 'yearly') => {
+    if (type !== 'free') {
+      const ok = await purchasePlan(type, sku);
+      if (!ok) { showToast({ text: 'pw.purchaseFailed', icon: 'close' }); return; }
+    }
+    setPlan(type);
+    setSheet(null);
+    showToast({ text: type === 'lifetime' ? 't.lifeUnlocked' : 't.plusActive', icon: 'sparkle' });
+  }, [showToast]);
 
   const saveReflection = useCallback((id: string, text: string) => setJournal((prev) => ({ ...prev, [id]: { ...(prev[id] || {}), reflection: text, ts: (prev[id] && prev[id].ts) || Date.now(), date: (prev[id] && prev[id].date) || shortDate() } })), []);
   const saveStudyJournal = useCallback((id: string, text: string) => setJournal((prev) => ({ ...prev, [id]: { ...(prev[id] || {}), study: text, ts: (prev[id] && prev[id].ts) || Date.now(), date: (prev[id] && prev[id].date) || shortDate() } })), []);

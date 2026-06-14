@@ -78,6 +78,7 @@ export const I18N: Record<Lang, Record<string, string>> = {
     't.savedVerse': 'Saved to your verses', 't.removedVerse': 'Removed from saved', 't.noteSaved': 'Note saved',
     't.savedWord': 'Saved to your words', 't.plusActive': 'VerseBite Plus active', 't.lifeUnlocked': 'Lifetime unlocked',
     't.noteCleared': 'Note cleared', 't.removedWord': 'Removed from words', 't.linkCopied': 'Link copied', 't.savedPhotos': 'Saved to Photos', 't.shared': 'Shared',
+    'pw.purchaseFailed': 'Purchase didn’t complete', 'pw.restored': 'Purchases restored', 'pw.nothingToRestore': 'Nothing to restore', 'sg.aiSuggest': 'Suggest with AI', 'sg.aiThinking': 'Thinking…',
   },
   ko: {
     brand: '말씀한입', brandPlus: '말씀한입 플러스', brandLifetime: '말씀한입 평생', plusBadge: '플러스',
@@ -155,6 +156,7 @@ export const I18N: Record<Lang, Record<string, string>> = {
     't.savedVerse': '말씀에 저장했어요', 't.removedVerse': '저장에서 삭제했어요', 't.noteSaved': '메모를 저장했어요',
     't.savedWord': '단어에 저장했어요', 't.plusActive': '말씀한입 플러스 사용 중', 't.lifeUnlocked': '평생 이용 잠금 해제',
     't.noteCleared': '메모를 지웠어요', 't.removedWord': '단어에서 삭제했어요', 't.linkCopied': '링크를 복사했어요', 't.savedPhotos': '사진에 저장했어요', 't.shared': '공유했어요',
+    'pw.purchaseFailed': '결제가 완료되지 않았어요', 'pw.restored': '구매를 복원했어요', 'pw.nothingToRestore': '복원할 구매가 없어요', 'sg.aiSuggest': 'AI로 질문 받기', 'sg.aiThinking': '생각 중…',
   },
 };
 

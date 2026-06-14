@@ -1,4 +1,5 @@
 import React from 'react';
+import { imageFor } from '@/services/images';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useStore } from '@/store/AppStore';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -30,7 +31,7 @@ export function JournalScreen() {
               const [a] = vbOrder(v, s.order);
               return (
                 <Pressable key={e.id + e.kind} onPress={() => s.openVerse(v)} style={[{ flexDirection: 'row', gap: 12, backgroundColor: theme.card, borderRadius: 16, borderWidth: 0.5, borderColor: theme.hair, padding: 15 }, theme.shadowSm]}>
-                  <VBImage cat={v.cat} src={v.img} radius={12} style={{ width: 48, height: 48 }} />
+                  <VBImage cat={v.cat} src={imageFor(v)} radius={12} style={{ width: 48, height: 48 }} />
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                       <Text style={{ fontSize: 10, fontWeight: '600', letterSpacing: 1, textTransform: 'uppercase', color: theme.goldInk }}>{a.ref}</Text>

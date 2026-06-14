@@ -2,6 +2,7 @@
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { Verse } from '@/data/content';
+import { imageFor } from '@/services/images';
 import { vbOrder } from '@/data/order';
 import { VBImage } from './VBImage';
 import { CatChip } from './CatChip';
@@ -27,7 +28,7 @@ export function VerseRow({ verse, order = 'en', saved, note, savedDate, guide, o
   const [a, b] = vbOrder(verse, order);
   return (
     <Pressable onPress={onOpen} style={{ flexDirection: 'row', gap: 14, paddingHorizontal: 16, paddingVertical: 14, backgroundColor: theme.card }}>
-      <VBImage cat={verse.cat} src={verse.img} radius={14} style={{ width: 66, height: 66 }} />
+      <VBImage cat={verse.cat} src={imageFor(verse)} radius={14} style={{ width: 66, height: 66 }} />
       <View style={{ flex: 1 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 7 }}>
           <CatChip cat={verse.cat} size="sm" />

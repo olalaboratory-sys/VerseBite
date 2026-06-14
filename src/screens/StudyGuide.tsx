@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { imageFor } from '@/services/images';
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Verse } from '@/data/content';
@@ -13,6 +14,8 @@ import { VBImage } from '@/components/VBImage';
 import { Scrim } from '@/components/Scrim';
 import { Icon, IconName } from '@/components/Icon';
 import { PlusChip, CircleBack } from '@/components/ui';
+import { hasAI } from '@/config';
+import { fetchReflection } from '@/services/ai';
 
 const hasKo = (s: string) => /[가-힣]/.test(s);
 function famStyle(text: string, weight: 400 | 500 | 600 = 500) {
@@ -60,6 +63,15 @@ export function StudyGuideScreen({ verse }: { verse: Verse }) {
   const c = vbCategory(verse.cat);
   const tintC = c ? c.tint : theme.goldInk;
   const [showGloss, setShowGloss] = useState(false);
+  const [aiQ, setAiQ] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+
+  const askAI = async () => {
+    setAiLoading(true);
+    const r = await fetchReflection(verse);
+    setAiLoading(false);
+    if (r) setAiQ(lang === 'ko' ? r.ko || r.en : r.en || r.ko);
+  };
 
   if (!sg) {
     return (
@@ -108,7 +120,7 @@ export function StudyGuideScreen({ verse }: { verse: Verse }) {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 40, gap: 12 }}>
         {/* selected verse */}
         <View style={[{ borderRadius: 18, overflow: 'hidden' }, theme.shadowSm]}>
-          <VBImage cat={verse.cat} src={verse.img} radius={18} style={{ minHeight: 172 }} scrim={<Scrim colors={['rgba(28,22,17,0.45)', 'rgba(28,22,17,0.20)', 'rgba(28,22,17,0.88)']} locations={[0, 0.36, 0.92]} />}>
+          <VBImage cat={verse.cat} src={imageFor(verse)} radius={18} style={{ minHeight: 172 }} scrim={<Scrim colors={['rgba(28,22,17,0.45)', 'rgba(28,22,17,0.20)', 'rgba(28,22,17,0.88)']} locations={[0, 0.36, 0.92]} />}>
             <View style={{ position: 'absolute', top: 12, left: 12 }}><Text style={{ fontSize: 10, fontWeight: '600', letterSpacing: 1.2, textTransform: 'uppercase', color: 'rgba(255,255,255,0.9)' }}>{t('sg.selectedVerse')}</Text></View>
             <View style={{ position: 'absolute', left: 16, right: 16, bottom: 14 }}>
               <Text style={[{ fontSize: 17, lineHeight: 22, color: '#fff' }, famStyle(vA)]}>{vA}</Text>
@@ -187,6 +199,20 @@ export function StudyGuideScreen({ verse }: { verse: Verse }) {
               </View>
             ))}
           </View>
+          {hasAI() ? (
+            <View style={{ marginTop: 14 }}>
+              <Pressable onPress={askAI} disabled={aiLoading} style={{ flexDirection: 'row', alignSelf: 'flex-start', alignItems: 'center', gap: 6, paddingVertical: 8, paddingHorizontal: 13, borderRadius: 99, backgroundColor: mix(tintC, theme.card, 18) }}>
+                <Icon name="sparkle" size={14} color={theme.goldInk} />
+                <Text style={{ fontSize: 13, fontWeight: '600', color: theme.goldInk }}>{aiLoading ? t('sg.aiThinking') : t('sg.aiSuggest')}</Text>
+              </Pressable>
+              {aiQ ? (
+                <View style={{ marginTop: 10, flexDirection: 'row', gap: 10, alignItems: 'flex-start', padding: 12, borderRadius: 12, backgroundColor: theme.fill, borderWidth: 0.5, borderColor: theme.hair }}>
+                  <Icon name="sparkle" size={15} color={theme.goldInk} />
+                  <Text style={[{ flex: 1, fontSize: 15.5, lineHeight: 23, color: theme.labelPrimary }, famStyle(aiQ, 500)]}>{aiQ}</Text>
+                </View>
+              ) : null}
+            </View>
+          ) : null}
           <View style={{ marginTop: 15, paddingTop: 15, borderTopWidth: 0.5, borderTopColor: theme.separator }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 9 }}>
               <Icon name="note" size={14} color={theme.goldInk} />
