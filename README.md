@@ -25,6 +25,26 @@ All degrade gracefully when unset. See [`backend/README.md`](backend/README.md).
 - `EXPO_PUBLIC_IMAGE_BASE` — optional static CDN fallback
 - `EXPO_PUBLIC_STUDY_ENDPOINT` — AI study-guide metadata (Claude), generated as the daily verse updates, stored durably, and shown to **paid users only** (falls back to the 45 authored guides)
 
+## Deploy readiness
+- ✅ `tsc --noEmit` clean; `expo config` resolves with all plugins.
+- ✅ App icon, adaptive icon, splash, and favicon generated (`npm run assets`,
+  source `scripts/make-assets.js`) and wired in `app.json`.
+- ✅ `eas.json` with development / preview / production profiles; bundle ids set
+  (`com.versebite.app`), version 2.0.0 / build 1.
+- ✅ Metro bundles all modules cleanly.
+- Build & ship with EAS:
+  ```bash
+  npm i -g eas-cli && eas login
+  eas build --profile preview --platform ios     # or android
+  eas submit --profile production --platform ios
+  ```
+- Note: a local `expo export` runs Hermes AOT (`hermesc`); some sandboxes ship an
+  **old hermesc (8.0.0svn)** that rejects RN 0.81's own `#private` fields
+  (`DOMRectReadOnly`). This is environmental — EAS build servers use the hermesc
+  matching RN 0.81 and compile these fine. Dev (`expo start` / Expo Go) is unaffected.
+- Before store submission: real Apple/Google accounts, the optional API keys
+  (see Integrations), and a privacy policy URL.
+
 ## Architecture
 ```
 src/

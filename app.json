@@ -7,20 +7,39 @@
     "scheme": "versebite",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "icon": "./assets/icon.png",
+    "primaryColor": "#C9A45C",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.versebite.app"
+      "bundleIdentifier": "com.versebite.app",
+      "buildNumber": "1"
     },
     "android": {
       "package": "com.versebite.app",
-      "edgeToEdgeEnabled": true
+      "versionCode": 1,
+      "edgeToEdgeEnabled": true,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#F3EADB"
+      }
     },
     "web": {
-      "bundler": "metro"
+      "bundler": "metro",
+      "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-font",
-      "expo-notifications"
+      "expo-notifications",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#F3EADB",
+          "dark": { "backgroundColor": "#171411" }
+        }
+      ]
     ]
   }
 }
