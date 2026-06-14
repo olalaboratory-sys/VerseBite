@@ -1,0 +1,228 @@
+// vb-i18n.jsx — App Language (UI language) system, independent of Learning Mode.
+// Exports: VB_I18N, t, vbCatName, vbGreetingL, vbFormatDateL, VB_LEARN_LABEL
+// Usage: t('today') reads window.VB_LANG ('en' | 'ko'), set by the App each render.
+
+const VB_I18N = {
+  en: {
+    // brand
+    'brand':'VerseBite', 'brandPlus':'VerseBite Plus', 'brandLifetime':'VerseBite Lifetime', 'plusBadge':'PLUS',
+    // tabs
+    'tab.today':'Today', 'tab.categories':'Categories', 'tab.calendar':'Calendar', 'tab.saved':'Saved', 'tab.profile':'Profile', 'tab.badges':'Awards',
+    'badge.kicker':'Journey', 'badge.title':'Achievements', 'badge.count':'{n} of {total} unlocked', 'badge.recent':'Recently earned', 'badge.done':'Earned', 'badge.unlockedToast':'Badge unlocked',
+    'badge.group.rhythm':'Daily Rhythm', 'badge.group.saved':'Saved Verses', 'badge.group.journal':'Reflection', 'badge.group.study':'Study Guide', 'badge.group.learn':'Learning', 'badge.group.share':'Sharing', 'badge.group.category':'Categories',
+    'badge.first_light.name':'First Light', 'badge.morning.name':'Morning Visitor', 'badge.rhythm7.name':'7-Day Rhythm', 'badge.rhythm30.name':'30-Day Rhythm',
+    'badge.first_saved.name':'First Saved Verse', 'badge.treasure.name':'Small Treasure', 'badge.keeper.name':'Verse Keeper', 'badge.hundred.name':'Hundred Verses',
+    'badge.first_note.name':'First Note', 'badge.thoughtful.name':'Thoughtful Heart', 'badge.quiet_journal.name':'Quiet Journal',
+    'badge.first_study.name':'First Study Guide', 'badge.context_seeker.name':'Context Seeker', 'badge.scripture.name':'Scripture Student',
+    'badge.first_word.name':'First Word', 'badge.word_collector.name':'Word Collector', 'badge.bilingual.name':'Bilingual Reader',
+    'badge.first_share.name':'First Share', 'badge.messenger.name':'Gentle Messenger', 'badge.full_garden.name':'Full Garden',
+    'badge.inprogress':'In progress', 'badge.earnedOn':'Earned', 'badge.locked':'Keep going',
+    'badge.first_light.desc':'Open VerseBite for the first time', 'badge.morning.desc':'Open before 10 AM on 3 days', 'badge.rhythm7.desc':'Open 7 days in a row', 'badge.rhythm30.desc':'Open 30 days in a row',
+    'badge.first_saved.desc':'Save your first verse', 'badge.treasure.desc':'Save 10 verses', 'badge.keeper.desc':'Save 50 verses', 'badge.hundred.desc':'Save 100 verses',
+    'badge.first_note.desc':'Write your first reflection note', 'badge.thoughtful.desc':'Write 10 notes', 'badge.quiet_journal.desc':'Write 30 journal entries',
+    'badge.first_study.desc':'Open your first Study Guide', 'badge.context_seeker.desc':'Open 10 Study Guides', 'badge.scripture.desc':'Complete 50 Study Guides',
+    'badge.first_word.desc':'Tap your first word meaning', 'badge.word_collector.desc':'Learn 25 words', 'badge.bilingual.desc':'Read bilingually for 30 days',
+    'badge.first_share.desc':'Share a verse for the first time', 'badge.messenger.desc':'Share 10 verses', 'badge.full_garden.desc':'Save 3 verses from every theme',
+    'cal.kicker':'Archive', 'cal.title':'Calendar', 'cal.sub':'One verse a day, by theme — revisit any day since you joined.', 'cal.subFree':'', 'cal.subPlus':'',
+    'cal.future':'This day hasn’t arrived yet.', 'cal.beforeSignup':'Only days since you joined are available.',
+    'cal.freeHint':'Free shows 1 verse per theme. Plus unlocks all 5.', 'cal.reason':'Plus gives you 5 verses per theme each day.',
+    'cal.start':'Day 1', 'cal.visited':'Visited', 'cal.attendance':'{n} days visited',
+    'nudge.unsaveTitle':'Remove from saved?', 'nudge.unsaveBody':'This verse and any note will be removed from your saved list.', 'nudge.remove':'Remove', 'nudge.keep':'Keep',
+    // today
+    'today.morning':'Good morning', 'today.afternoon':'Good afternoon', 'today.evening':'Good evening',
+    'today.sub':'A verse for your day — take a quiet moment.',
+    'today.reflectPrompt':'What word stays with you today?',
+    // actions
+    'act.refresh':'Refresh', 'act.save':'Save', 'act.saved':'Saved', 'act.note':'Note', 'act.share':'Share',
+    // headers
+    'h.explore':'Explore', 'h.byTheme':'By Theme', 'h.exploreSub':'Find a verse for what you need today.',
+    'h.saved':'Saved', 'h.profile':'Profile',
+    // verses/words counts
+    'count.verse':'verse', 'count.verses':'verses', 'count.word':'word', 'count.words':'words',
+    'unit.verses':'verses', 'unit.words':'words',
+    // saved
+    'saved.searchVerses':'Search saved verses', 'saved.verses':'Verses', 'saved.words':'Words',
+    'saved.noVerses':'No saved verses yet', 'saved.noVersesSub':'When a verse speaks to you, tap save and it will be kept here.',
+    'saved.noWords':'No saved words yet', 'saved.noWordsSub':'Tap an underlined word in the main verse to see its meaning and save it here.',
+    'saved.noWordsOff':'Turn on a learning mode in Settings, then tap words in a verse to collect them.',
+    'saved.kept':'kept for reflection', 'saved.all':'All', 'saved.noMatches':'No matches.',
+    'saved.savedOn':'Saved',
+    // category detail
+    'cat.recent':'Recent', 'cat.mostSaved':'Most saved', 'cat.random':'Random',
+    // sections
+    'sec.learning':'Learning', 'sec.language':'Language', 'sec.library':'Library', 'sec.reminder':'Daily Reminder',
+    'sec.appearance':'Appearance', 'sec.about':'About', 'sec.reading':'Reading',
+    // profile rows
+    'row.appLanguage':'App language', 'row.learningMode':'Learning mode', 'row.verseOrder':'Verse display order',
+    'donate.title':'Support the developer', 'donate.body':'VerseBite is made by one person. A small gift helps keep it running, ad-light, and growing.', 'donate.cta':'Buy the developer a coffee', 'donate.thanks':'Thank you for keeping VerseBite alive',
+    'donate.short':'A small gift helps the developer', 'donate.choose':'Choose an amount', 'donate.custom':'Enter amount', 'donate.give':'Give {amt}', 'donate.onetime':'One-time gift · no subscription',
+    'lang.pick':'Choose app language', 'learn.pick':'Choose learning mode', 'lang.en.sub':'Use the app in English', 'lang.ko.sub':'Use the app in Korean',
+    'row.dailyReminder':'Daily reminder', 'row.reminderTime':'Reminder time', 'row.darkTheme':'Dark theme',
+    'row.verseHistory':'Verse history', 'row.journal':'Reflection journal', 'row.plans':'Plans & pricing',
+    'row.about':'About VerseBite', 'row.terms':'Terms & Privacy', 'row.replay':'Replay onboarding', 'row.manage':'Manage',
+    'reminder.footer':'VerseBite refreshes your verse each morning at this time.',
+    'language.footer':'App language sets the interface. Learning mode sets which language you study inside verse cards. They are independent.',
+    // segmented values
+    'seg.enFirst':'EN first', 'seg.koFirst':'KO first', 'seg.auto':'Auto', 'seg.en':'EN', 'seg.ko':'한', 'seg.off':'Off',
+    'learn.en':'Learn English', 'learn.ko':'Learn Korean', 'learn.off':'Learning off',
+    'learn.en.sub':'English leads each verse · tap words for meaning', 'learn.ko.sub':'Korean leads each verse · tap words for meaning', 'learn.off.sub':'Word meanings are not shown',
+    // reflection / learning cards
+    'card.reflection':'Reflection', 'card.learningNotes':'Learning notes', 'card.writeReflection':'Write your reflection…',
+    'card.unlockReflection':'Unlock reflection with Plus', 'card.learnEveryVerse':'Learn every verse with Plus',
+    'pulse.q':'How does this verse meet you today?',
+    'pulse.done':'Held in your heart today.',
+    'pulse.comfort':'Comfort', 'pulse.courage':'Courage', 'pulse.gratitude':'Grateful', 'pulse.peace':'Peace', 'pulse.challenge':'Challenged',
+    'pulse.streak1':'day with a verse', 'pulse.streakN':'days with a verse', 'pulse.first':'Your first verse today.',
+    'sg.title':'Study Guide',
+    'sg.subFree':'Go beyond one verse with full passage, context, reflection questions, and application guide.',
+    'sg.subPlus':'Read the context and reflect deeper.',
+    'sg.ctaFree':'Unlock with Plus', 'sg.ctaPlus':'Open Study Guide',
+    'sg.selectedVerse':'Selected Verse', 'sg.fullPassage':'Full Passage', 'sg.context':'Context',
+    'sg.keyMessage':'Key Message', 'sg.notes':'Language & Meaning Notes', 'sg.reflection':'Reflection Questions',
+    'sg.application':'Application Guide', 'sg.journal':'Journal note', 'sg.prayer':'Prayer', 'sg.myNote':'Your reflection note',
+    'sg.gratitudeNote':'Gratitude note', 'sg.gratitudePrompt':'What are you grateful for today?',
+    'sg.meaningNote':'Meaning Note', 'sg.openJournal':'Write in journal',
+    'sg.showWords':'Word meanings', 'sg.hideWords':'Hide',
+    'sg.save':'Save study guide', 'sg.savedState':'Study guide saved', 'sg.includesGuide':'Study guide saved',
+    'saved.searchDate':'Search verse or date',
+    't.studySaved':'Study guide saved', 't.studyUnsaved':'Study guide removed',
+    'sg.reason':'Plus turns every daily verse into a guided Bible study.',
+    // subscription
+    'sub.quietDeep':'A quieter, deeper daily verse.', 'sub.quietDeepSub':'Remove ads, refresh without limits, reflect with AI, and share beautiful cards.',
+    'sub.tryPlus':'Try Plus — from $2.99/mo', 'sub.active':'Active · renews monthly', 'sub.lifetime':'Lifetime access · thank you',
+    // word sheet
+    'word.enWord':'English word', 'word.koWord':'한국어 단어', 'word.save':'Save word', 'word.saved':'Saved to your words',
+    'word.noDef':'We don’t have a definition for this word yet — but you can still keep it in your word list to review later.',
+    // common
+    'c.continue':'Continue', 'c.cancel':'Cancel', 'c.save':'Save', 'c.getStarted':'Get Started', 'c.maybeLater':'Maybe later',
+    'c.free':'Free', 'c.plus':'Plus', 'c.lifetime':'Lifetime', 'c.both':'Both', 'c.english':'English', 'c.korean':'한국어',
+    // paywall
+    'pw.title':'Make your daily verse quieter and deeper.', 'pw.sub':'매일의 말씀을 더 조용하고 깊게 만나보세요.',
+    'pw.restore':'Restore', 'pw.terms':'Terms & Privacy', 'pw.startPlus':'Start VerseBite Plus', 'pw.unlockLife':'Unlock Lifetime',
+    'pw.reasonRefresh':'Unlimited refresh is a Plus feature — find the verse your heart needs.',
+    'pw.reasonReflection':'Go deeper with AI reflection questions.',
+    'pw.reasonLearn':'Learn English & Korean through every verse.',
+    'pw.reasonHistory':'Verse history is a Plus feature.',
+    'pw.reasonJournal':'The reflection journal is a Plus feature.',
+    'pw.reasonShare':'Premium share cards are a Plus feature.',
+    // toasts
+    't.savedVerse':'Saved to your verses', 't.removedVerse':'Removed from saved', 't.noteSaved':'Note saved',
+    't.savedWord':'Saved to your words', 't.plusActive':'VerseBite Plus active', 't.lifeUnlocked':'Lifetime unlocked',
+  },
+  ko: {
+    'brand':'말씀한입', 'brandPlus':'말씀한입 플러스', 'brandLifetime':'말씀한입 평생', 'plusBadge':'플러스',
+    'tab.today':'오늘', 'tab.categories':'카테고리', 'tab.calendar':'달력', 'tab.saved':'저장됨', 'tab.profile':'프로필', 'tab.badges':'배지',
+    'badge.kicker':'여정', 'badge.title':'배지', 'badge.count':'{total}개 중 {n}개 획득', 'badge.recent':'최근 획득', 'badge.done':'획득함', 'badge.unlockedToast':'배지를 획득했어요',
+    'badge.group.rhythm':'매일의 리듬', 'badge.group.saved':'저장한 말씀', 'badge.group.journal':'묵상', 'badge.group.study':'스터디 가이드', 'badge.group.learn':'학습', 'badge.group.share':'나눔', 'badge.group.category':'카테고리',
+    'badge.first_light.name':'첫 빛', 'badge.morning.name':'아침의 방문', 'badge.rhythm7.name':'7일의 리듬', 'badge.rhythm30.name':'30일의 리듬',
+    'badge.first_saved.name':'첫 저장', 'badge.treasure.name':'작은 보물', 'badge.keeper.name':'말씀 지킴이', 'badge.hundred.name':'백 개의 말씀',
+    'badge.first_note.name':'첫 묵상 노트', 'badge.thoughtful.name':'사려 깊은 마음', 'badge.quiet_journal.name':'조용한 저널',
+    'badge.first_study.name':'첫 스터디 가이드', 'badge.context_seeker.name':'문맥을 찾는 이', 'badge.scripture.name':'말씀의 학생',
+    'badge.first_word.name':'첫 단어', 'badge.word_collector.name':'단어 수집가', 'badge.bilingual.name':'이중언어 독자',
+    'badge.first_share.name':'첫 나눔', 'badge.messenger.name':'따뜻한 전령', 'badge.full_garden.name':'가득한 정원',
+    'badge.inprogress':'진행 중', 'badge.earnedOn':'획득', 'badge.locked':'계속 이어가요',
+    'badge.first_light.desc':'VerseBite를 처음 열기', 'badge.morning.desc':'3일 동안 오전 10시 전에 열기', 'badge.rhythm7.desc':'7일 연속 열기', 'badge.rhythm30.desc':'30일 연속 열기',
+    'badge.first_saved.desc':'첫 말씀 저장하기', 'badge.treasure.desc':'말씀 10개 저장', 'badge.keeper.desc':'말씀 50개 저장', 'badge.hundred.desc':'말씀 100개 저장',
+    'badge.first_note.desc':'첫 묵상 노트 작성', 'badge.thoughtful.desc':'노트 10개 작성', 'badge.quiet_journal.desc':'저널 30개 작성',
+    'badge.first_study.desc':'첫 스터디 가이드 열기', 'badge.context_seeker.desc':'스터디 가이드 10개 열기', 'badge.scripture.desc':'스터디 가이드 50개 완료',
+    'badge.first_word.desc':'첫 단어 뜻 확인하기', 'badge.word_collector.desc':'단어 25개 학습', 'badge.bilingual.desc':'30일 동안 이중언어로 읽기',
+    'badge.first_share.desc':'처음으로 말씀 나누기', 'badge.messenger.desc':'말씀 10번 나누기', 'badge.full_garden.desc':'모든 주제에서 말씀 3개씩 저장',
+    'cal.kicker':'보관함', 'cal.title':'달력', 'cal.sub':'가입한 날부터 매일 한 구절씩, 주제별로 다시 만나요.', 'cal.subFree':'', 'cal.subPlus':'',
+    'cal.future':'아직 오지 않은 날이에요.', 'cal.beforeSignup':'가입한 날 이후부터만 볼 수 있어요.',
+    'cal.freeHint':'무료는 주제별 1구절. 플러스는 5구절 모두.', 'cal.reason':'플러스는 매일 주제별 5구절을 제공해요.',
+    'cal.start':'시작일', 'cal.visited':'출석', 'cal.attendance':'{n}일 출석',
+    'nudge.unsaveTitle':'저장에서 삭제할까요?', 'nudge.unsaveBody':'이 말씀과 메모가 저장 목록에서 삭제돼요.', 'nudge.remove':'삭제', 'nudge.keep':'유지',
+    'today.morning':'좋은 아침이에요', 'today.afternoon':'좋은 오후예요', 'today.evening':'좋은 저녁이에요',
+    'today.sub':'오늘의 말씀이에요 — 잠시 조용한 시간을 가져보세요.',
+    'today.reflectPrompt':'오늘 마음에 남는 단어는 무엇인가요?',
+    'act.refresh':'새로고침', 'act.save':'저장', 'act.saved':'저장됨', 'act.note':'메모', 'act.share':'공유',
+    'h.explore':'탐색', 'h.byTheme':'주제별', 'h.exploreSub':'지금 필요한 말씀을 찾아보세요.',
+    'h.saved':'저장됨', 'h.profile':'프로필',
+    'count.verse':'구절', 'count.verses':'구절', 'count.word':'단어', 'count.words':'단어',
+    'unit.verses':'구절', 'unit.words':'단어',
+    'saved.searchVerses':'저장한 말씀 검색', 'saved.verses':'말씀', 'saved.words':'단어',
+    'saved.noVerses':'아직 저장된 말씀이 없어요', 'saved.noVersesSub':'마음에 남는 말씀이 있다면 저장해보세요. 이곳에 보관돼요.',
+    'saved.noWords':'아직 저장된 단어가 없어요', 'saved.noWordsSub':'말씀에서 밑줄 친 단어를 눌러 뜻을 보고 이곳에 저장해보세요.',
+    'saved.noWordsOff':'설정에서 학습 모드를 켜고 말씀 속 단어를 눌러 모아보세요.',
+    'saved.kept':'개 보관됨', 'saved.all':'전체', 'saved.noMatches':'결과가 없어요.',
+    'saved.savedOn':'저장',
+    'cat.recent':'최신순', 'cat.mostSaved':'저장순', 'cat.random':'랜덤',
+    'sec.learning':'학습', 'sec.language':'언어', 'sec.library':'보관함', 'sec.reminder':'매일 알림',
+    'sec.appearance':'화면', 'sec.about':'정보', 'sec.reading':'읽기',
+    'row.appLanguage':'앱 언어', 'row.learningMode':'학습 모드', 'row.verseOrder':'말씀 표시 순서',
+    'donate.title':'개발자에게 기부하기', 'donate.body':'말씀한입은 한 사람이 만들어요. 작은 후원이 앱을 계속 유지하고, 광고를 줄이고, 더 키우는 데 큰 힘이 됩니다.', 'donate.cta':'개발자에게 커피 한 잔', 'donate.thanks':'말씀한입을 지켜주셔서 감사합니다',
+    'donate.short':'작은 후원이 개발자에게 도움이 됩니다', 'donate.choose':'금액 선택', 'donate.custom':'금액 입력', 'donate.give':'{amt} 후원하기', 'donate.onetime':'일회성 후원 · 구독 아님',
+    'lang.pick':'앱 언어 선택', 'learn.pick':'학습 모드 선택', 'lang.en.sub':'앱을 영어로 사용하기', 'lang.ko.sub':'앱을 한국어로 사용하기',
+    'row.dailyReminder':'매일 알림', 'row.reminderTime':'알림 시간', 'row.darkTheme':'다크 모드',
+    'row.verseHistory':'지난 말씀', 'row.journal':'묵상 저널', 'row.plans':'요금제 안내',
+    'row.about':'VerseBite 소개', 'row.terms':'약관 및 개인정보', 'row.replay':'온보딩 다시 보기', 'row.manage':'관리',
+    'reminder.footer':'VerseBite가 매일 아침 이 시간에 새로운 말씀을 전해드려요.',
+    'language.footer':'앱 언어는 인터페이스 언어를, 학습 모드는 말씀 카드에서 학습할 언어를 정합니다. 두 설정은 서로 독립적이에요.',
+    'seg.enFirst':'영어 먼저', 'seg.koFirst':'한글 먼저', 'seg.auto':'자동', 'seg.en':'영어', 'seg.ko':'한국어', 'seg.off':'끄기',
+    'learn.en':'영어 배우기', 'learn.ko':'한국어 배우기', 'learn.off':'학습 모드 끄기',
+    'learn.en.sub':'영어가 먼저 표시돼요 · 단어를 눌러 뜻 보기', 'learn.ko.sub':'한국어가 먼저 표시돼요 · 단어를 눌러 뜻 보기', 'learn.off.sub':'단어 뜻을 보이지 않습니다',
+    'card.reflection':'묵상', 'card.learningNotes':'학습 노트', 'card.writeReflection':'묵상을 적어보세요…',
+    'card.unlockReflection':'플러스로 묵상 잠금 해제', 'card.learnEveryVerse':'플러스로 모든 말씀을 학습하기',
+    'pulse.q':'이 말씀, 오늘 어떻게 다가오나요?',
+    'pulse.done':'오늘의 마음으로 담았어요.',
+    'pulse.comfort':'위로', 'pulse.courage':'용기', 'pulse.gratitude':'감사', 'pulse.peace':'평안', 'pulse.challenge':'도전',
+    'pulse.streak1':'일째 말씀과 함께', 'pulse.streakN':'일째 말씀과 함께', 'pulse.first':'오늘 첫 말씀이에요.',
+    'sg.title':'스터디 가이드',
+    'sg.subFree':'전체 문맥, 배경 설명, 묵상 질문, 적용 가이드로 말씀을 더 깊이 이해하세요.',
+    'sg.subPlus':'문맥을 읽고 더 깊이 묵상해보세요.',
+    'sg.ctaFree':'플러스로 열기', 'sg.ctaPlus':'스터디 가이드 열기',
+    'sg.selectedVerse':'선택한 말씀', 'sg.fullPassage':'전체 문맥', 'sg.context':'배경',
+    'sg.keyMessage':'핵심 메시지', 'sg.notes':'언어·의미 노트', 'sg.reflection':'묵상 질문',
+    'sg.application':'적용 가이드', 'sg.journal':'오늘의 기록', 'sg.prayer':'기도', 'sg.myNote':'나의 묵상 노트',
+    'sg.gratitudeNote':'감사 노트', 'sg.gratitudePrompt':'오늘 감사한 것을 적어보세요.',
+    'sg.meaningNote':'의미 노트', 'sg.openJournal':'저널에 쓰기',
+    'sg.showWords':'단어 뜻 보기', 'sg.hideWords':'접기',
+    'sg.save':'스터디 가이드 저장', 'sg.savedState':'스터디 가이드 저장됨', 'sg.includesGuide':'스터디 가이드 포함',
+    'saved.searchDate':'말씀 또는 날짜 검색',
+    't.studySaved':'스터디 가이드를 저장했어요', 't.studyUnsaved':'스터디 가이드 저장을 해제했어요',
+    'sg.reason':'플러스는 매일의 한 구절을 깊이 있는 성경공부로 확장해줍니다.',
+    'sub.quietDeep':'더 조용하고 깊은 매일의 말씀.', 'sub.quietDeepSub':'광고 없이, 무제한 새로고침, AI 묵상, 아름다운 공유 카드까지.',
+    'sub.tryPlus':'플러스 — 월 $2.99부터', 'sub.active':'사용 중 · 매월 갱신', 'sub.lifetime':'평생 이용 · 감사합니다',
+    'word.enWord':'영어 단어', 'word.koWord':'한국어 단어', 'word.save':'단어 저장', 'word.saved':'단어에 저장됨',
+    'word.noDef':'아직 이 단어의 뜻이 없어요. 그래도 단어 목록에 저장해두고 나중에 복습할 수 있어요.',
+    'c.continue':'계속', 'c.cancel':'취소', 'c.save':'저장', 'c.getStarted':'시작하기', 'c.maybeLater':'다음에 할게요',
+    'c.free':'무료', 'c.plus':'플러스', 'c.lifetime':'평생', 'c.both':'둘 다', 'c.english':'영어', 'c.korean':'한국어',
+    'pw.title':'매일의 말씀을 더 조용하고 깊게.', 'pw.sub':'Make your daily verse quieter and deeper.',
+    'pw.restore':'복원', 'pw.terms':'약관 및 개인정보', 'pw.startPlus':'말씀한입 플러스 시작', 'pw.unlockLife':'평생 이용 잠금 해제',
+    'pw.reasonRefresh':'무제한 새로고침은 플러스 기능이에요 — 마음에 필요한 말씀을 찾아보세요.',
+    'pw.reasonReflection':'AI 묵상 질문으로 더 깊이 들어가 보세요.',
+    'pw.reasonLearn':'모든 말씀으로 영어와 한국어를 학습하세요.',
+    'pw.reasonHistory':'지난 말씀은 플러스 기능이에요.',
+    'pw.reasonJournal':'묵상 저널은 플러스 기능이에요.',
+    'pw.reasonShare':'프리미엄 공유 카드는 플러스 기능이에요.',
+    't.savedVerse':'말씀에 저장했어요', 't.removedVerse':'저장에서 삭제했어요', 't.noteSaved':'메모를 저장했어요',
+    't.savedWord':'단어에 저장했어요', 't.plusActive':'말씀한입 플러스 사용 중', 't.lifeUnlocked':'평생 이용 잠금 해제',
+  },
+};
+
+function t(key) {
+  const lang = (window.VB_LANG === 'ko') ? 'ko' : 'en';
+  return (VB_I18N[lang] && VB_I18N[lang][key]) || (VB_I18N.en[key]) || key;
+}
+// category name in the current app language
+function vbCatName(cat) {
+  if (!cat) return '';
+  return (window.VB_LANG === 'ko') ? cat.ko : cat.label;
+}
+function vbCatSecondary(cat) {
+  if (!cat) return '';
+  return (window.VB_LANG === 'ko') ? cat.label : cat.ko;
+}
+function vbGreetingL() {
+  const h = new Date().getHours();
+  if (h < 12) return t('today.morning');
+  if (h < 18) return t('today.afternoon');
+  return t('today.evening');
+}
+function vbFormatDateL(d = new Date()) {
+  const loc = (window.VB_LANG === 'ko') ? 'ko-KR' : 'en-US';
+  return d.toLocaleDateString(loc, { weekday:'long', month:'long', day:'numeric' });
+}
+const VB_LEARN_LABEL = { en:'learn.en', ko:'learn.ko', off:'learn.off' };
+
+Object.assign(window, { VB_I18N, t, vbCatName, vbCatSecondary, vbGreetingL, vbFormatDateL, VB_LEARN_LABEL });

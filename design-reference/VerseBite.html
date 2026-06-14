@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VerseBite</title>
+
+<!-- iOS Design System tokens + components -->
+<link rel="stylesheet" href="_ds/ios-design-system-b2fbca47-98c7-4661-bbd2-f7487e2fba1e/styles.css">
+
+<!-- Brand fonts: serif (English), Korean serif/sans -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Playfair+Display:wght@400;500;600&family=Noto+Serif+KR:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    background: #E7E2DA;
+    font-family: var(--font-text, -apple-system, system-ui, sans-serif);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow: hidden;
+  }
+  #root { height: 100%; }
+
+  /* hide scrollbars inside the phone for a clean device look */
+  .vb-root *::-webkit-scrollbar { width: 0; height: 0; display: none; }
+  .vb-root * { scrollbar-width: none; -ms-overflow-style: none; }
+
+  .vb-root ::selection { background: color-mix(in srgb, var(--vb-gold) 40%, transparent); }
+  textarea, input { font-family: var(--font-text); }
+
+  /* learning-mode word affordances */
+  .vb-word { cursor: pointer; transition: background .12s; border-radius: 4px; }
+  .vb-word[data-known] { border-bottom: 1.5px dotted color-mix(in srgb, var(--vb-gold-ink) 60%, transparent); }
+  .vb-word[data-saved] { background: color-mix(in srgb, var(--vb-gold) 30%, transparent); border-bottom: none; box-shadow: 0 0 0 2px color-mix(in srgb, var(--vb-gold) 30%, transparent); }
+  .vb-word-light[data-known] { border-bottom-color: rgba(255,255,255,0.6); }
+  .vb-word-light[data-saved] { background: rgba(255,255,255,0.26); box-shadow: 0 0 0 2px rgba(255,255,255,0.26); }
+  .vb-word:active { background: color-mix(in srgb, var(--vb-gold) 22%, transparent); }
+
+  @keyframes vbFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes vbRise { from { transform: translateY(10px); } to { transform: translateY(0); } }
+  .vb-fade-in { animation: vbRise .45s cubic-bezier(0.2,0.8,0.3,1); }
+  @keyframes vbToast { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+  @keyframes vbSheet { from { transform: translateY(46px); } to { transform: translateY(0); } }
+  @keyframes vbPush { from { transform: translateX(26px); } to { transform: translateX(0); } }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.01ms !important; }
+  }
+</style>
+
+<!-- thumbnail for offline bundling -->
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#F3EADB"/>
+    <rect x="30" y="30" width="40" height="40" rx="12" fill="#C9A45C"/>
+    <text x="50" y="58" font-family="Georgia, serif" font-size="22" fill="#fff" text-anchor="middle">V</text>
+  </svg>
+</template>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- React + Babel (pinned) -->
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+
+  <!-- iOS Design System component bundle (plain JS) -->
+  <script src="_ds/ios-design-system-b2fbca47-98c7-4661-bbd2-f7487e2fba1e/_ds_bundle.js"></script>
+
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <!-- scaffolding -->
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+  <script type="text/babel" src="ios-frame.jsx"></script>
+
+  <!-- VerseBite app -->
+  <script type="text/babel" src="vb-data.jsx"></script>
+  <script type="text/babel" src="vb-i18n.jsx"></script>
+  <script type="text/babel" src="vb-words.jsx"></script>
+  <script type="text/babel" src="vb-shared.jsx"></script>
+  <script type="text/babel" src="vb-onboarding.jsx"></script>
+  <script type="text/babel" src="vb-screens-main.jsx"></script>
+  <script type="text/babel" src="vb-screens-lib.jsx"></script>
+  <script type="text/babel" src="vb-premium.jsx"></script>
+  <script type="text/babel" src="vb-study-data.jsx"></script>
+  <script type="text/babel" src="vb-study.jsx"></script>
+  <script type="text/babel" src="vb-daily.jsx"></script>
+  <script type="text/babel" src="vb-calendar.jsx"></script>
+  <script type="text/babel" src="vb-badges.jsx"></script>
+  <script type="text/babel" src="vb-app.jsx"></script>
+
+  <!-- fit the fixed 402×874 device to any viewport -->
+  <script>
+    function vbFit(){
+      var d = document.getElementById('device');
+      if(!d) return;
+      var s = Math.min(1, (window.innerWidth-20)/402, (window.innerHeight-20)/874);
+      d.style.transform = 'scale('+s+')';
+      d.style.transformOrigin = 'center center';
+    }
+    window.addEventListener('resize', vbFit);
+    var vbFitT = setInterval(vbFit, 400);
+    setTimeout(function(){ clearInterval(vbFitT); }, 6000);
+  </script>
+</body>
+</html>

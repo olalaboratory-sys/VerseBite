@@ -1,0 +1,322 @@
+// Bilingual mini-dictionary + tokenizer for learning mode. Ported from vb-words.jsx.
+// (Duplicate keys from the prototype object literals are collapsed to JS's
+//  "last wins" value to keep the data identical.)
+
+export type EnEntry = { def: string; ko: string; pos: string };
+export type KoEntry = { def: string; en: string; roman: string };
+export type Lookup = { headword: string; def: string; defAlt?: string; trans: string; roman: string | null; pos: string | null; lang: 'en' | 'ko' };
+
+export const WORDS: { en: Record<string, EnEntry>; ko: Record<string, KoEntry> } = {
+  en: {
+    friend: { def: 'a person you trust and enjoy being with', ko: '친구', pos: 'noun' },
+    loves: { def: 'feels deep affection for', ko: '사랑하다', pos: 'verb' },
+    times: { def: 'all moments; always', ko: '때 · 시기', pos: 'noun' },
+    brother: { def: 'a close family member or companion', ko: '형제', pos: 'noun' },
+    born: { def: 'brought into being; made for', ko: '태어나다', pos: 'verb' },
+    adversity: { def: 'a time of hardship or trouble', ko: '역경 · 고난', pos: 'noun' },
+    iron: { def: 'a strong, hard metal', ko: '철 · 쇠', pos: 'noun' },
+    sharpens: { def: 'makes keener or stronger', ko: '날카롭게 하다', pos: 'verb' },
+    person: { def: 'an individual human being', ko: '사람', pos: 'noun' },
+    another: { def: 'one more; a different one', ko: '다른 하나', pos: 'det' },
+    two: { def: 'the number 2', ko: '둘', pos: 'num' },
+    better: { def: 'of higher quality; more good', ko: '더 나은', pos: 'adj' },
+    reward: { def: 'a good thing given in return', ko: '상 · 보상', pos: 'noun' },
+    toil: { def: 'hard, tiring work', ko: '수고 · 노동', pos: 'noun' },
+    patient: { def: 'able to wait calmly', ko: '참을성 있는', pos: 'adj' },
+    kind: { def: 'gentle and caring toward others', ko: '친절한', pos: 'adj' },
+    envy: { def: 'to want what someone else has', ko: '시기하다', pos: 'verb' },
+    boast: { def: 'to talk with too much pride', ko: '자랑하다', pos: 'verb' },
+    proud: { def: 'thinking too highly of oneself', ko: '교만한', pos: 'adj' },
+    beloved: { def: 'dearly loved', ko: '사랑하는 자', pos: 'noun' },
+    love: { def: 'deep care and affection', ko: '사랑', pos: 'noun' },
+    god: { def: 'the Creator; the divine', ko: '하나님', pos: 'noun' },
+    virtues: { def: 'good moral qualities', ko: '미덕', pos: 'noun' },
+    binds: { def: 'ties or holds together', ko: '묶다', pos: 'verb' },
+    unity: { def: 'the state of being one', ko: '연합 · 하나됨', pos: 'noun' },
+    serve: { def: 'to give devoted help to', ko: '섬기다', pos: 'verb' },
+    lord: { def: 'a title of honor for God', ko: '주 · 주님', pos: 'noun' },
+    train: { def: 'to teach and guide over time', ko: '훈련하다 · 가르치다', pos: 'verb' },
+    child: { def: 'a young human; a son or daughter', ko: '아이', pos: 'noun' },
+    way: { def: 'a path or manner of living', ko: '길 · 방법', pos: 'noun' },
+    old: { def: 'having lived many years', ko: '늙은', pos: 'adj' },
+    depart: { def: 'to go away from; to leave', ko: '떠나다', pos: 'verb' },
+    children: { def: 'sons and daughters', ko: '자녀', pos: 'noun' },
+    heritage: { def: 'something valuable passed down', ko: '기업 · 유산', pos: 'noun' },
+    offspring: { def: "one's children", ko: '자손', pos: 'noun' },
+    hope: { def: 'confident expectation of good', ko: '소망 · 희망', pos: 'noun' },
+    renew: { def: 'to make new or fresh again', ko: '새롭게 하다', pos: 'verb' },
+    strength: { def: 'power and energy', ko: '힘', pos: 'noun' },
+    soar: { def: 'to fly high and freely', ko: '솟아오르다', pos: 'verb' },
+    wings: { def: 'the parts a bird flies with', ko: '날개', pos: 'noun' },
+    eagles: { def: 'large, strong birds of prey', ko: '독수리', pos: 'noun' },
+    things: { def: 'objects or matters', ko: '것들 · 일', pos: 'noun' },
+    christ: { def: 'the Anointed One; Jesus', ko: '그리스도', pos: 'noun' },
+    strengthens: { def: 'gives power to', ko: '힘을 주다', pos: 'verb' },
+    strong: { def: 'having great power', ko: '강한', pos: 'adj' },
+    courageous: { def: 'brave; not afraid', ko: '담대한 · 용감한', pos: 'adj' },
+    afraid: { def: 'feeling fear', ko: '두려워하는', pos: 'adj' },
+    discouraged: { def: 'having lost confidence', ko: '낙심한', pos: 'adj' },
+    trust: { def: 'to firmly rely on', ko: '신뢰하다', pos: 'verb' },
+    heart: { def: 'the center of feeling and will', ko: '마음', pos: 'noun' },
+    lean: { def: 'to depend on for support', ko: '의지하다', pos: 'verb' },
+    understanding: { def: 'the power to grasp meaning', ko: '명철 · 이해', pos: 'noun' },
+    faith: { def: 'trust in what is not yet seen', ko: '믿음', pos: 'noun' },
+    substance: { def: 'the real essence of a thing', ko: '실상', pos: 'noun' },
+    evidence: { def: 'proof that something is true', ko: '증거', pos: 'noun' },
+    seen: { def: 'observed with the eyes', ko: '보이는', pos: 'verb' },
+    walk: { def: 'to live or conduct oneself', ko: '행하다', pos: 'verb' },
+    sight: { def: 'the ability to see', ko: '보는 것 · 시각', pos: 'noun' },
+    bear: { def: 'to patiently put up with', ko: '참다 · 견디다', pos: 'verb' },
+    forgive: { def: 'to stop holding a wrong against', ko: '용서하다', pos: 'verb' },
+    forgiving: { def: 'choosing to release a wrong', ko: '용서하는', pos: 'verb' },
+    compassionate: { def: 'feeling deep sympathy', ko: '불쌍히 여기는', pos: 'adj' },
+    mercy: { def: 'kindness shown instead of punishment', ko: '자비 · 긍휼', pos: 'noun' },
+    sin: { def: 'a wrong against God', ko: '죄', pos: 'noun' },
+    father: { def: 'a male parent; God', ko: '아버지', pos: 'noun' },
+    thanks: { def: 'words of gratitude', ko: '감사', pos: 'noun' },
+    circumstances: { def: 'the conditions of a situation', ko: '형편 · 상황', pos: 'noun' },
+    will: { def: 'a firm purpose or intention', ko: '뜻 · 의지', pos: 'noun' },
+    day: { def: 'a period of light; a date', ko: '날 · 하루', pos: 'noun' },
+    made: { def: 'created or formed', ko: '만들다', pos: 'verb' },
+    glad: { def: 'happy and pleased', ko: '기뻐하는', pos: 'adj' },
+    gates: { def: 'entrances in a wall', ko: '문', pos: 'noun' },
+    thanksgiving: { def: 'the giving of thanks', ko: '감사', pos: 'noun' },
+    courts: { def: 'enclosed yards of a temple', ko: '궁정 · 뜰', pos: 'noun' },
+    praise: { def: 'words honoring someone', ko: '찬송 · 찬양', pos: 'noun' },
+    plans: { def: 'intentions for the future', ko: '계획 · 생각', pos: 'noun' },
+    prosper: { def: 'to do well and flourish', ko: '번성하다', pos: 'verb' },
+    future: { def: 'the time still to come', ko: '미래', pos: 'noun' },
+    joy: { def: 'deep gladness', ko: '기쁨', pos: 'noun' },
+    peace: { def: 'calm and freedom from worry', ko: '평강 · 평안', pos: 'noun' },
+    good: { def: 'right and beneficial', ko: '선 · 좋은', pos: 'adj' },
+    ways: { def: 'paths or methods of living', ko: '길 · 방법', pos: 'noun' },
+    submit: { def: 'to yield to; acknowledge', ko: '인정하다 · 복종하다', pos: 'verb' },
+    paths: { def: 'routes; the course of life', ko: '길', pos: 'noun' },
+    straight: { def: 'direct and without bends', ko: '곧은', pos: 'adj' },
+    wisdom: { def: 'good judgment from understanding', ko: '지혜', pos: 'noun' },
+    lacks: { def: 'is without; needs', ko: '부족하다', pos: 'verb' },
+    generously: { def: 'freely and abundantly', ko: '후히 · 넉넉히', pos: 'adv' },
+    beginning: { def: 'the first part; the start', ko: '시작', pos: 'noun' },
+    cost: { def: 'the price something takes', ko: '값 · 대가', pos: 'noun' },
+    eternal: { def: 'lasting forever', ko: '영원한', pos: 'adj' },
+    light: { def: 'brightness; truth', ko: '빛', pos: 'noun' },
+    // extended passage vocabulary
+    selfseeking: { def: '자기 유익만 구하는', ko: '자기 유익을 구하는', pos: 'adj' },
+    delight: { def: '큰 기쁨을 느끼다', ko: '기뻐하다', pos: 'verb' },
+    rejoices: { def: '함께 기뻐하다', ko: '기뻐하다', pos: 'verb' },
+    rejoice: { def: '크게 기뻐하다', ko: '기뻐하다', pos: 'verb' },
+    dishonor: { def: '무례히 대하다', ko: '무례하게 대하다', pos: 'verb' },
+    perseveres: { def: '끝까지 견디다', ko: '견디다', pos: 'verb' },
+    perseverance: { def: '인내, 끈기', ko: '인내', pos: 'noun' },
+    protects: { def: '보호하다', ko: '보호하다', pos: 'verb' },
+    protect: { def: '보호하다', ko: '보호하다', pos: 'verb' },
+    record: { def: '기록; 마음에 담아 둠', ko: '기록', pos: 'noun' },
+    wrongs: { def: '잘못, 악행', ko: '잘못', pos: 'noun' },
+    truth: { def: '진리, 참됨', ko: '진리', pos: 'noun' },
+    guilty: { def: '죄가 있는', ko: '죄 있는', pos: 'adj' },
+    innocent: { def: '죄 없는, 무죄한', ko: '무죄한', pos: 'adj' },
+    condemning: { def: '정죄하다, 단죄하다', ko: '정죄하는', pos: 'verb' },
+    detests: { def: '몹시 미워하다', ko: '미워하다', pos: 'verb' },
+    fools: { def: '어리석은 자', ko: '미련한 자', pos: 'noun' },
+    understand: { def: '이해하다', ko: '이해하다', pos: 'verb' },
+    guards: { def: '지키다, 망보다', ko: '지키다', pos: 'verb' },
+    overpowered: { def: '제압당하다', ko: '제압당하는', pos: 'verb' },
+    defend: { def: '맞서 지키다', ko: '맞서다 · 방어하다', pos: 'verb' },
+    cord: { def: '줄, 끈', ko: '줄', pos: 'noun' },
+    strands: { def: '(줄의) 가닥', ko: '겹 · 가닥', pos: 'noun' },
+    broken: { def: '끊어진, 깨진', ko: '끊어진', pos: 'adj' },
+    content: { def: '자족하는, 만족하는', ko: '자족하는', pos: 'adj' },
+    contentment: { def: '자족, 만족', ko: '자족', pos: 'noun' },
+    plenty: { def: '풍족함', ko: '풍부', pos: 'noun' },
+    commission: { def: '임무를 맡기다', ko: '사명을 맡기다', pos: 'verb' },
+    shun: { def: '멀리하다, 피하다', ko: '멀리하다', pos: 'verb' },
+    evil: { def: '악, 악한 것', ko: '악', pos: 'noun' },
+    nourishment: { def: '영양, 양분', ko: '양분 · 윤택함', pos: 'noun' },
+    bones: { def: '뼈', ko: '뼈 · 골수', pos: 'noun' },
+    confidence: { def: '확신, 담대함', ko: '확신', pos: 'noun' },
+    assurance: { def: '확신, 보증', ko: '증거 · 확신', pos: 'noun' },
+    ancients: { def: '옛 선조들', ko: '선진들', pos: 'noun' },
+    commended: { def: '인정받다, 칭찬받다', ko: '증거를 얻다', pos: 'verb' },
+    universe: { def: '온 세계, 우주', ko: '온 세계', pos: 'noun' },
+    command: { def: '명령', ko: '명령', pos: 'noun' },
+    visible: { def: '보이는', ko: '보이는', pos: 'adj' },
+    prefer: { def: '더 원하다', ko: '더 원하다', pos: 'verb' },
+    compassion: { def: '긍휼, 깊은 동정', ko: '긍휼', pos: 'noun' },
+    humility: { def: '겸손', ko: '겸손', pos: 'noun' },
+    gentleness: { def: '온유함', ko: '온유', pos: 'noun' },
+    grievance: { def: '서운함, 불만', ko: '불만', pos: 'noun' },
+    bitterness: { def: '쓴 마음, 원망', ko: '악독 · 쓴 뿌리', pos: 'noun' },
+    rage: { def: '격분', ko: '노함', pos: 'noun' },
+    anger: { def: '분노', ko: '분냄', pos: 'noun' },
+    slander: { def: '비방, 험담', ko: '비방', pos: 'noun' },
+    malice: { def: '악의', ko: '악의', pos: 'noun' },
+    debts: { def: '빚; 죄', ko: '빚 · 죄', pos: 'noun' },
+    debtors: { def: '빚진 자', ko: '빚진 자', pos: 'noun' },
+    builders: { def: '세우는 자', ko: '세우는 자', pos: 'noun' },
+    labor: { def: '수고하다, 일하다', ko: '수고', pos: 'noun' },
+    vain: { def: '헛된', ko: '헛된', pos: 'adj' },
+    watches: { def: '지켜보다, 망보다', ko: '지키다', pos: 'verb' },
+    grants: { def: '주시다, 베풀다', ko: '주시다', pos: 'verb' },
+    weary: { def: '지친, 피곤한', ko: '피곤한', pos: 'adj' },
+    faint: { def: '기진하다', ko: '피곤하다', pos: 'verb' },
+    stumble: { def: '넘어지다', ko: '넘어지다', pos: 'verb' },
+    harm: { def: '해, 재앙', ko: '재앙', pos: 'noun' },
+    seek: { def: '찾다, 구하다', ko: '찾다 · 구하다', pos: 'verb' },
+    overflow: { def: '넘쳐흐르다', ko: '넘치다', pos: 'verb' },
+    foreknew: { def: '미리 아시다', ko: '미리 아시다', pos: 'verb' },
+    predestined: { def: '미리 정하시다', ko: '미리 정하다', pos: 'verb' },
+    conformed: { def: '본받게 되다', ko: '본받다', pos: 'verb' },
+    image: { def: '형상, 모습', ko: '형상', pos: 'noun' },
+    fault: { def: '허물, 잘못', ko: '허물', pos: 'noun' },
+    doubt: { def: '의심하다', ko: '의심하다', pos: 'verb' },
+    wave: { def: '물결', ko: '물결', pos: 'noun' },
+    forsake: { def: '버리다, 저버리다', ko: '버리다', pos: 'verb' },
+    abundance: { def: '풍성함', ko: '풍성함', pos: 'noun' },
+    household: { def: '집안, 가정', ko: '집안', pos: 'noun' },
+  },
+  ko: {
+    '친구': { def: 'a trusted, close companion', en: 'friend', roman: 'chin-gu' },
+    '사랑': { def: 'deep care and affection', en: 'love', roman: 'sa-rang' },
+    '형제': { def: 'a brother; close kin', en: 'brother', roman: 'hyeong-je' },
+    '역경': { def: 'a time of hardship', en: 'adversity', roman: 'yeok-gyeong' },
+    '철': { def: 'iron; hard metal', en: 'iron', roman: 'cheol' },
+    '사람': { def: 'a person; human being', en: 'person', roman: 'sa-ram' },
+    '두': { def: 'the number two', en: 'two', roman: 'du' },
+    '상': { def: 'a reward; prize', en: 'reward', roman: 'sang' },
+    '수고': { def: 'hard, tiring labor', en: 'toil · labor', roman: 'su-go' },
+    '온유': { def: 'gentleness; meekness', en: 'gentleness', roman: 'on-yu' },
+    '시기': { def: 'envy; jealousy', en: 'envy', roman: 'si-gi' },
+    '자랑': { def: 'boasting; bragging', en: 'boast', roman: 'ja-rang' },
+    '교만': { def: 'pride; arrogance', en: 'pride', roman: 'gyo-man' },
+    '하나님': { def: 'God, the Creator', en: 'God', roman: 'ha-na-nim' },
+    '집': { def: 'a house; household', en: 'house · home', roman: 'jip' },
+    '섬기겠노라': { def: 'will serve / honor', en: 'will serve', roman: 'seom-gi' },
+    '섬기': { def: 'to serve; honor', en: 'serve', roman: 'seom-gi' },
+    '여호와': { def: 'the LORD; God’s name', en: 'the LORD', roman: 'yeo-ho-wa' },
+    '아이': { def: 'a young child', en: 'child', roman: 'a-i' },
+    '길': { def: 'a road; a way of life', en: 'way · road', roman: 'gil' },
+    '자식': { def: "one's children", en: 'children', roman: 'ja-sik' },
+    '기업': { def: 'an inheritance; heritage', en: 'heritage', roman: 'gi-eop' },
+    '상급': { def: 'a reward', en: 'reward', roman: 'sang-geup' },
+    '소망': { def: 'hope; expectation', en: 'hope', roman: 'so-mang' },
+    '희망': { def: 'hope', en: 'hope', roman: 'hui-mang' },
+    '새': { def: 'new; fresh', en: 'new', roman: 'sae' },
+    '힘': { def: 'strength; power', en: 'strength', roman: 'him' },
+    '독수리': { def: 'an eagle', en: 'eagle', roman: 'dok-su-ri' },
+    '날개': { def: 'wings', en: 'wings', roman: 'nal-gae' },
+    '능력': { def: 'power; ability', en: 'power', roman: 'neung-nyeok' },
+    '그리스도': { def: 'Christ, the Anointed', en: 'Christ', roman: 'geu-ri-seu-do' },
+    '강하고': { def: 'be strong', en: 'be strong', roman: 'gang-ha-go' },
+    '담대하라': { def: 'be courageous', en: 'be courageous', roman: 'dam-dae-ha-ra' },
+    '두려워하지': { def: 'do not fear', en: 'do not fear', roman: 'du-ryeo-wo' },
+    '마음': { def: 'the heart; mind', en: 'heart', roman: 'ma-eum' },
+    '신뢰': { def: 'trust; reliance', en: 'trust', roman: 'sin-roe' },
+    '명철': { def: 'understanding; insight', en: 'understanding', roman: 'myeong-cheol' },
+    '믿음': { def: 'faith; belief', en: 'faith', roman: 'mi-deum' },
+    '실상': { def: 'the real substance', en: 'substance', roman: 'sil-sang' },
+    '증거': { def: 'evidence; proof', en: 'evidence', roman: 'jeung-geo' },
+    '행하고': { def: 'to walk; to do', en: 'walk · do', roman: 'haeng-ha-go' },
+    '용서': { def: 'forgiveness', en: 'forgiveness', roman: 'yong-seo' },
+    '친절': { def: 'kindness', en: 'kindness', roman: 'chin-jeol' },
+    '자비': { def: 'mercy; compassion', en: 'mercy', roman: 'ja-bi' },
+    '잘못': { def: 'a fault; wrongdoing', en: 'wrong · fault', roman: 'jal-mot' },
+    '아버지': { def: 'father', en: 'father', roman: 'a-beo-ji' },
+    '감사': { def: 'thanks; gratitude', en: 'thanks', roman: 'gam-sa' },
+    '범사': { def: 'all things; every matter', en: 'all things', roman: 'beom-sa' },
+    '뜻': { def: 'will; purpose; meaning', en: 'will', roman: 'tteut' },
+    '날': { def: 'a day', en: 'day', roman: 'nal' },
+    '즐거워': { def: 'to rejoice; be glad', en: 'rejoice', roman: 'jeul-geo-wo' },
+    '기뻐': { def: 'to be glad; delight', en: 'be glad', roman: 'gi-ppeo' },
+    '문': { def: 'a gate; a door', en: 'gate', roman: 'mun' },
+    '찬송': { def: 'praise; a hymn', en: 'praise', roman: 'chan-song' },
+    '궁정': { def: 'a temple court', en: 'court', roman: 'gung-jeong' },
+    '계획': { def: 'a plan', en: 'plan', roman: 'gye-hoek' },
+    '생각': { def: 'a thought; intention', en: 'thought · plan', roman: 'saeng-gak' },
+    '미래': { def: 'the future', en: 'future', roman: 'mi-rae' },
+    '기쁨': { def: 'joy; gladness', en: 'joy', roman: 'gi-ppeum' },
+    '평강': { def: 'peace; well-being', en: 'peace', roman: 'pyeong-gang' },
+    '평안': { def: 'peace; calm', en: 'peace', roman: 'pyeong-an' },
+    '선': { def: 'good; goodness', en: 'good', roman: 'seon' },
+    '인정하라': { def: 'acknowledge; recognize', en: 'acknowledge', roman: 'in-jeong-ha-ra' },
+    '지혜': { def: 'wisdom', en: 'wisdom', roman: 'ji-hye' },
+    '부족': { def: 'lack; shortage', en: 'lack', roman: 'bu-jok' },
+    '후히': { def: 'generously; abundantly', en: 'generously', roman: 'hu-hi' },
+    '빛': { def: 'light', en: 'light', roman: 'bit' },
+  },
+};
+
+const KO_PARTICLES = ['에게는', '에서', '으로', '로서', '이라', '라는', '에게', '께서', '처럼', '보다', '마다', '부터', '까지', '이나', '으로', '은', '는', '이', '가', '을', '를', '에', '의', '도', '와', '과', '로', '만', '며', '고', '은', '님', '들', '이여', '여', '라', '한', '할', '하', '함', '이라도'];
+
+export type Token = { text: string; word: boolean };
+
+export function tokenize(text: string, lang: 'en' | 'ko'): Token[] {
+  const re = lang === 'ko' ? /([가-힣]+)/g : /([A-Za-z]+(?:-[A-Za-z]+)*)/g;
+  const out: Token[] = [];
+  let last = 0;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > last) out.push({ text: text.slice(last, m.index), word: false });
+    out.push({ text: m[0], word: true });
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) out.push({ text: text.slice(last), word: false });
+  return out;
+}
+
+// Korean definitions for English headwords (Learn English mode).
+export const KODEF: Record<string, string> = {
+  friend: '믿고 의지할 수 있는 가까운 사람', loves: '깊이 아끼고 사랑하다', times: '모든 때, 언제나',
+  brother: '형제처럼 가까운 사람', born: '어떤 목적을 위해 태어나다', adversity: '어렵고 힘든 상황, 역경',
+  iron: '단단한 금속, 쇠', sharpens: '더 날카롭고 강하게 만들다', person: '한 사람, 개인',
+  patient: '오래 참고 기다리는', kind: '친절하고 다정한', envy: '남이 가진 것을 부러워하다',
+  boast: '지나치게 자랑하다', proud: '교만하고 우쭐한', beloved: '깊이 사랑받는 사람',
+  love: '깊은 애정과 돌봄', god: '창조주 하나님', virtues: '선한 성품, 미덕', binds: '하나로 묶다',
+  unity: '하나로 연합된 상태', household: '한 집에 사는 가족', serve: '헌신하여 섬기다', lord: '주님을 높여 부르는 말',
+  train: '오랫동안 가르치고 이끌다', child: '어린아이, 자녀', way: '길, 살아가는 방식', old: '나이가 많은',
+  depart: '떠나다, 벗어나다', children: '자녀, 아이들', heritage: '물려받은 귀한 것, 기업', offspring: '자녀, 자손',
+  hope: '좋은 일을 기대하는 마음', renew: '새롭게 회복시키다', strength: '힘과 기운', soar: '높이 날아오르다',
+  wings: '새가 나는 날개', eagles: '크고 강한 독수리', things: '일이나 사물', christ: '기름 부음 받은 자, 그리스도',
+  strengthens: '힘을 주다', strong: '강하고 굳센', courageous: '용감하고 담대한', afraid: '두려워하는',
+  discouraged: '낙심하고 기운이 빠진', trust: '굳게 믿고 의지하다', heart: '마음의 중심', lean: '기대어 의지하다',
+  understanding: '깊이 이해하는 능력, 명철', faith: '보이지 않아도 믿는 마음', substance: '실제 본질, 실상',
+  evidence: '사실임을 보여주는 증거', seen: '눈으로 보이는', walk: '살아가다, 행하다', sight: '보는 것, 시각',
+  bear: '참고 견디다', forgive: '잘못을 더 이상 묻지 않다', forgiving: '잘못을 너그러이 풀어 주는',
+  compassionate: '깊이 불쌍히 여기는', mercy: '벌 대신 베푸는 자비', sin: '하나님께 짓는 잘못, 죄',
+  father: '아버지, 하나님 아버지', thanks: '감사하는 마음', circumstances: '처한 형편이나 상황', will: '뜻, 의지',
+  day: '하루, 날', made: '만들고 지으신', rejoice: '크게 기뻐하다', glad: '기쁘고 즐거운', gates: '성벽의 출입문',
+  thanksgiving: '감사를 드림', courts: '성전의 뜰', praise: '높여 찬양하는 말', plans: '미래를 위한 계획, 생각',
+  prosper: '잘 되고 번성하다', future: '앞으로 올 시간, 미래', joy: '깊은 기쁨', peace: '평안하고 고요한 상태',
+  good: '옳고 유익한', ways: '살아가는 길, 방식', submit: '인정하고 따르다', paths: '길, 인생의 방향',
+  straight: '곧고 바른', wisdom: '올바르게 판단하는 지혜', lacks: '부족하여 필요로 하다', generously: '아낌없이 넉넉하게',
+  beginning: '처음, 시작', cost: '치러야 하는 값, 대가', eternal: '영원히 지속되는', light: '어둠을 밝히는 빛',
+};
+
+function mkKo(h: string, e: KoEntry): Lookup {
+  return { headword: h, def: e.def, trans: e.en, roman: e.roman, pos: null, lang: 'ko' };
+}
+
+export function lookup(token: string, lang: 'en' | 'ko'): Lookup | null {
+  if (lang === 'en') {
+    const k = token.toLowerCase().replace(/[^a-z']/g, '');
+    const e = WORDS.en[k];
+    if (e) return { headword: k, def: KODEF[k] || e.ko, defAlt: e.def, trans: e.ko, roman: null, pos: e.pos, lang: 'en' };
+    return null;
+  }
+  const d = WORDS.ko;
+  if (d[token]) return mkKo(token, d[token]);
+  for (const p of KO_PARTICLES) {
+    if (token.length > p.length && token.endsWith(p)) {
+      const base = token.slice(0, token.length - p.length);
+      if (d[base]) return mkKo(base, d[base]);
+    }
+  }
+  let best: string | null = null;
+  for (const k in d) {
+    if (k.length >= 2 && token.startsWith(k) && (!best || k.length > best.length)) best = k;
+  }
+  if (best) return mkKo(best, d[best]);
+  for (const k in d) {
+    if (k.length >= 2 && token.includes(k)) return mkKo(k, d[k]);
+  }
+  return null;
+}
