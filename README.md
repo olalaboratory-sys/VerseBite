@@ -23,6 +23,7 @@ All degrade gracefully when unset. See [`backend/README.md`](backend/README.md).
 - `EXPO_PUBLIC_RC_API_KEY` — RevenueCat in-app purchases
 - `EXPO_PUBLIC_IMAGE_ENDPOINT` — on-demand verse-image generation (Gemini/Imagen proxy); images are generated as the verse changes, cached per verse, and seeded so they never repeat
 - `EXPO_PUBLIC_IMAGE_BASE` — optional static CDN fallback
+- `EXPO_PUBLIC_STUDY_ENDPOINT` — AI study-guide metadata (Claude), generated as the daily verse updates, stored durably, and shown to **paid users only** (falls back to the 45 authored guides)
 
 ## Architecture
 ```

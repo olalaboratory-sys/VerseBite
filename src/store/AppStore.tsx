@@ -7,7 +7,8 @@ import { lookup } from '@/data/words';
 import { scheduleDailyReminder, cancelDailyReminder } from '@/utils/notifications';
 import { purchasePlan, configurePurchases } from '@/services/purchases';
 import { generateImage, imageFor } from '@/services/images';
-import { hasImageGen } from '@/config';
+import { fetchStudyGuide, GeneratedGuide } from '@/services/studyguide';
+import { hasImageGen, hasStudyGen } from '@/config';
 
 export type Plan = 'free' | 'plus' | 'lifetime';
 export type Learn = 'en' | 'ko' | 'off';
@@ -57,7 +58,7 @@ const DEFAULT_COUNTS: Counts = { opens: 0, studyOpens: 0, shares: 0, refreshes: 
 const K = {
   onboarded: 'vb_onboarded', prefs: 'vb_prefs', saved: 'vb_saved', words: 'vb_words', plan: 'vb_plan',
   journal: 'vb_journal', resonance: 'vb_resonance', history: 'vb_history', counts: 'vb_counts',
-  today: 'vb_today', signup: 'vb_signup', dark: 'vb_dark', seen: 'vb_seen', genImages: 'vb_genimg', daily: 'vb_daily',
+  today: 'vb_today', signup: 'vb_signup', dark: 'vb_dark', seen: 'vb_seen', genImages: 'vb_genimg', daily: 'vb_daily', genGuides: 'vb_genguides',
 };
 
 function strHash(str: string): number {
@@ -97,8 +98,10 @@ function useStoreValue() {
   const [seen, setSeen] = useState<string[]>([]);
   const [genImages, setGenImages] = useState<Record<string, string>>({});
   const [daily, setDaily] = useState<Record<string, string>>({}); // dateKey -> verse shown that day
+  const [genGuides, setGenGuides] = useState<Record<string, GeneratedGuide>>({}); // verseId -> AI study guide (paid)
   const signupRef = useRef<string>(dateKey());
   const pendingImg = useRef<Set<string>>(new Set());
+  const pendingGuide = useRef<Set<string>>(new Set());
 
   // navigation (not persisted)
   const [tab, setTab] = useState<'today' | 'calendar' | 'badges' | 'saved' | 'profile'>('today');
@@ -118,11 +121,12 @@ function useStoreValue() {
         load<string[]>(K.seen, []), load<Record<string, string>>(K.genImages, {}),
       ]);
       const da = await load<Record<string, string>>(K.daily, {});
+      const gg = await load<Record<string, GeneratedGuide>>(K.genGuides, {});
       setOnboarded(ob);
       setPrefs({ ...DEFAULT_PREFS, ...pr });
       setSaved(sv); setWords(wd); setPlan(pl); setJournal(jr); setResonance(rs); setHistory(hi);
       setCounts({ ...DEFAULT_COUNTS, ...ct });
-      setDark(dk); setSeen(se); setGenImages(gi); setDaily(da);
+      setDark(dk); setSeen(se); setGenImages(gi); setDaily(da); setGenGuides(gg);
       const todayStr = new Date().toDateString();
       setTodayId(td && td.date === todayStr ? td.id : pickDaily(pr.categories));
       signupRef.current = su || dateKey();
@@ -147,6 +151,7 @@ function useStoreValue() {
   useEffect(() => { if (hydrated) save(K.seen, seen); }, [seen, hydrated]);
   useEffect(() => { if (hydrated) save(K.genImages, genImages); }, [genImages, hydrated]);
   useEffect(() => { if (hydrated) save(K.daily, daily); }, [daily, hydrated]);
+  useEffect(() => { if (hydrated) save(K.genGuides, genGuides); }, [genGuides, hydrated]);
 
   // remember which verses have been shown (so refresh avoids repeats)
   useEffect(() => {
@@ -344,6 +349,24 @@ function useStoreValue() {
     if (overlay && (overlay.type === 'verse' || overlay.type === 'study' || overlay.type === 'editor')) ensureImage(overlay.verse.id);
   }, [overlay, ensureImage]);
 
+  // ── AI study-guide generation (paid only, cached & saved per verse) ──
+  const ensureStudyGuide = useCallback((id: string) => {
+    if (!hasStudyGen() || plan === 'free' || !id || genGuides[id] || pendingGuide.current.has(id)) return;
+    const v = vbVerse(id);
+    if (!v) return;
+    pendingGuide.current.add(id);
+    fetchStudyGuide(v).then((g) => {
+      pendingGuide.current.delete(id);
+      if (g) setGenGuides((prev) => ({ ...prev, [id]: g }));
+    });
+  }, [genGuides, plan]);
+
+  // generate the full study metadata as the daily verse updates (paid)
+  useEffect(() => { if (hydrated && plan !== 'free') ensureStudyGuide(todayId); }, [todayId, hydrated, plan, ensureStudyGuide]);
+  useEffect(() => {
+    if (overlay && (overlay.type === 'verse' || overlay.type === 'study') && plan !== 'free') ensureStudyGuide(overlay.verse.id);
+  }, [overlay, plan, ensureStudyGuide]);
+
   const finishOnboarding = useCallback((p: { appLang: Lang; learningMode: Learn; primaryLang: string; order: string; verseOrder: Prefs['verseOrder']; categories: string[]; notifications: boolean; plan: Plan }) => {
     setPrefs((prev) => ({ ...prev, appLang: p.appLang, primaryLang: p.primaryLang, order: p.order, verseOrder: p.verseOrder || 'auto', learningMode: p.learningMode, notifications: p.notifications, categories: p.categories }));
     if (p.plan && p.plan !== 'free') setPlan(p.plan);
@@ -374,7 +397,7 @@ function useStoreValue() {
     appLang, learn, order, isPaid, savedSet, savedWordSet, notesMap, savedList, savedWordsList, journalEntries, todayKey, resonanceStreak,
     setTab: switchTab, setOverlay, setSheet, closeOverlay, openVerse, openCat, openNote, openShare, onWord, replayOnboarding,
     toggleSave, confirmUnsave, saveNote, refresh, pickCategory, toggleSaveWord, removeWord, wordIsSaved,
-    imageSrc, ensureImage, genImages, daily,
+    imageSrc, ensureImage, genImages, daily, genGuides, ensureStudyGuide,
     setLearn, setAppLang, setVerseOrder, setPrefs, openPaywall, requirePaid, choosePlan,
     saveReflection, saveStudyJournal, saveGratitude, openEditor, openStudy, bumpShare, saveStudyGuide, pickResonance,
     finishOnboarding, showToast,

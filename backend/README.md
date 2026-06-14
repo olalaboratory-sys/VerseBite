@@ -12,6 +12,7 @@ to switch each on.
 | `EXPO_PUBLIC_RC_API_KEY` | In-app purchases (`src/services/purchases.ts`) | RevenueCat |
 | `EXPO_PUBLIC_IMAGE_ENDPOINT` | On-demand AI verse imagery (`src/services/images.ts`) | `image/` Edge Function (Gemini/Imagen) |
 | `EXPO_PUBLIC_IMAGE_BASE` | Optional static/pre-rendered imagery fallback | any CDN |
+| `EXPO_PUBLIC_STUDY_ENDPOINT` | AI study-guide metadata, **paid only** (`src/services/studyguide.ts`) | `studyguide/` Edge Function (Claude) |
 
 ## 1. AI reflection (`reflection/index.ts`)
 Supabase Edge Function that proxies to the Anthropic Messages API so the key
@@ -59,3 +60,19 @@ exact verse + its saved image.
 **Content rules (enforced in the prompt):** no text/words, no depiction of Jesus
 or faces, no violence; warm cinematic realism in ivory/gold tones.
 Set `EXPO_PUBLIC_IMAGE_BASE` instead if you prefer pre-rendered CDN images.
+
+## 4. AI study-guide metadata (`studyguide/index.ts`) — paid only
+As the daily verse updates, the app (for **paid users only**) generates the full
+bilingual study metadata (passage · context · key message · reflection ·
+application · journal · prayer) via Claude, then stores it in Supabase Storage
+(`study-guides` bucket) and re-serves the saved copy thereafter. The Study Guide
+screen prefers the generated guide and falls back to the 45 authored guides when
+unconfigured. Visibility is paid-gated both client-side (the Study Guide is
+behind the paywall) and by only generating for paid users.
+
+```bash
+supabase functions deploy studyguide --no-verify-jwt
+supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
+# create a PUBLIC storage bucket named "study-guides"
+# then: EXPO_PUBLIC_STUDY_ENDPOINT=https://<project>.functions.supabase.co/studyguide
+```

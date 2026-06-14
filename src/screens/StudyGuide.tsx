@@ -59,7 +59,8 @@ export function StudyGuideScreen({ verse }: { verse: Verse }) {
   const { t, catName, lang } = useI18n();
   const s = useStore();
   const insets = useSafeAreaInsets();
-  const sg = studyGuide(verse.id);
+  const gen = s.genGuides[verse.id];
+  const sg = gen ? { verse, ...gen } : studyGuide(verse.id);
   const c = vbCategory(verse.cat);
   const tintC = c ? c.tint : theme.goldInk;
   const [showGloss, setShowGloss] = useState(false);

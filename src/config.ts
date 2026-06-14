@@ -10,9 +10,11 @@ export const CONFIG = {
   rcApiKey: process.env.EXPO_PUBLIC_RC_API_KEY ?? '',
   imageEndpoint: process.env.EXPO_PUBLIC_IMAGE_ENDPOINT ?? '',
   imageBase: process.env.EXPO_PUBLIC_IMAGE_BASE ?? '',
+  studyEndpoint: process.env.EXPO_PUBLIC_STUDY_ENDPOINT ?? '',
 };
 
 export const hasAI = () => CONFIG.aiEndpoint.length > 0;
 export const hasPurchases = () => CONFIG.rcApiKey.length > 0;
 export const hasImageGen = () => CONFIG.imageEndpoint.length > 0;
 export const hasImagePipeline = () => CONFIG.imageBase.length > 0;
+export const hasStudyGen = () => CONFIG.studyEndpoint.length > 0;
