@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2020",
+    "lib": ["es2020"],
+    "strict": false,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "skipLibCheck": true,
+    "outDir": "build",
+    "rootDir": ".."
+  },
+  "include": ["./sim.ts", "../src/data/**/*.ts", "../src/i18n/dict.ts"]
+}
