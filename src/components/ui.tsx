@@ -50,7 +50,7 @@ export function SegmentedControl<T extends string>({ value, onChange, options }:
       {options.map((o) => {
         const on = o.value === value;
         return (
-          <Pressable key={o.value} onPress={() => onChange(o.value)} style={[{ flex: 1, height: 32, borderRadius: 8, alignItems: 'center', justifyContent: 'center' }, on && { backgroundColor: theme.card, ...theme.shadowSm }]}>
+          <Pressable key={o.value} onPress={() => onChange(o.value)} accessibilityRole="button" accessibilityState={{ selected: on }} style={[{ flex: 1, height: 32, borderRadius: 8, alignItems: 'center', justifyContent: 'center' }, on && { backgroundColor: theme.card, ...theme.shadowSm }]}>
             <Text style={{ fontSize: 13.5, fontWeight: on ? '600' : '500', color: on ? theme.labelPrimary : theme.labelSecondary }}>{o.label}</Text>
           </Pressable>
         );

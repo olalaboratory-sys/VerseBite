@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { BackHandler, Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { CATEGORIES, catImg } from '@/data/content';
@@ -49,6 +49,13 @@ export function Onboarding({ onDone }: { onDone: (a: DoneArg) => void }) {
   const [notif, setNotif] = useState(true);
   const [cats, setCats] = useState<Set<string>>(new Set(['hope', 'gratitude', 'faith']));
   const L = applang === 'ko';
+
+  // Android hardware back steps backward through onboarding instead of exiting.
+  useEffect(() => {
+    const onBack = () => { if (step > 0) { setStep((s) => s - 1); return true; } return false; };
+    const sub = BackHandler.addEventListener('hardwareBackPress', onBack);
+    return () => sub.remove();
+  }, [step]);
 
   const toggleCat = (id: string) => setCats((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
   const finish = (plan: Plan) => onDone({ appLang: applang, learningMode: lang, primaryLang: lang === 'off' ? 'both' : lang, order: lang === 'ko' ? 'ko' : 'en', verseOrder: 'auto', categories: Array.from(cats), notifications: notif, plan });

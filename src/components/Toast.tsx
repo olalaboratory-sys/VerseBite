@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, Text, View } from 'react-native';
+import { AccessibilityInfo, Animated, Text, View } from 'react-native';
 import { Icon, IconName } from './Icon';
 import { useTheme } from '@/theme/ThemeProvider';
 import { useI18n } from '@/i18n';
@@ -14,7 +14,9 @@ export function VBToast({ toast }: { toast: Toast }) {
     if (toast) {
       anim.setValue(0);
       Animated.spring(anim, { toValue: 1, useNativeDriver: true, friction: 8, tension: 80 }).start();
+      AccessibilityInfo.announceForAccessibility(t(toast.text));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [toast, anim]);
 
   if (!toast) return null;

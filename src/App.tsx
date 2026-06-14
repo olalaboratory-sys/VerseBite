@@ -1,5 +1,9 @@
 import React, { useEffect } from 'react';
 import { ActivityIndicator, BackHandler, Text as RNText, TextInput as RNTextInput, View } from 'react-native';
+import * as SplashScreen from 'expo-splash-screen';
+
+// Hold the native splash until fonts + persisted state are ready (no blank flash).
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
 // Let text scale with OS Dynamic Type for accessibility, but cap it so very
 // large settings don't shatter the design-heavy layouts.
@@ -95,6 +99,10 @@ function Root() {
     return () => sub.remove();
   }, [s]);
 
+  useEffect(() => {
+    if (s.hydrated) SplashScreen.hideAsync().catch(() => {});
+  }, [s.hydrated]);
+
   if (!s.hydrated) {
     return <View style={{ flex: 1, backgroundColor: theme.bg, alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator color={theme.goldInk} /></View>;
   }
@@ -131,6 +139,11 @@ function Root() {
 
 export default function App() {
   const [fontsLoaded] = useFonts({ CormorantGaramond_400Regular, CormorantGaramond_500Medium, CormorantGaramond_600SemiBold });
+  // Safety: never leave the splash up indefinitely if fonts fail to load.
+  useEffect(() => {
+    const id = setTimeout(() => SplashScreen.hideAsync().catch(() => {}), 5000);
+    return () => clearTimeout(id);
+  }, []);
   return (
     <SafeAreaProvider>
       <AppStoreProvider>
