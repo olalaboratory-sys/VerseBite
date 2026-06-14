@@ -1,0 +1,15 @@
+rules_version = '2';
+// Generated verse art + study guides are written only by Cloud Functions
+// (admin SDK bypasses rules) and read publicly. Clients cannot write here.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /verse-images/{allPaths=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /study-guides/{allPaths=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}

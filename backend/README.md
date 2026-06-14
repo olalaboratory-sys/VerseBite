@@ -1,83 +1,56 @@
-# VerseBite — backend & paid-feature integration
+# VerseBite — backend & paid-feature integration (Firebase + Gemini)
 
-The app ships with clean integration points that **degrade gracefully**: with no
-keys configured, AI reflection is hidden, purchases resolve in sandbox mode, and
-imagery falls back to the bundled Unsplash stand-ins. Set the env vars below
-(in `.env` / EAS secrets, all `EXPO_PUBLIC_`-prefixed so they inline into the app)
-to switch each on.
+All AI runs on **Gemini**, hosted on **Firebase Cloud Functions**, with generated
+art and study guides stored in **Firebase Storage**. One `GEMINI_API_KEY` powers
+everything. The app calls plain HTTPS endpoints (configured by env var), so it is
+backend-agnostic — only the URLs change.
 
-| Env var | Enables | Service |
+Everything **degrades gracefully**: with no endpoints set, AI imagery falls back
+to the bundled stand-ins, the study guide uses the 45 authored guides, AI
+reflection is hidden, and purchases run in sandbox.
+
+| Env var | Enables | Function |
 |---|---|---|
-| `EXPO_PUBLIC_AI_ENDPOINT` | AI reflection (`src/services/ai.ts`) | `reflection/` Edge Function |
-| `EXPO_PUBLIC_RC_API_KEY` | In-app purchases (`src/services/purchases.ts`) | RevenueCat |
-| `EXPO_PUBLIC_IMAGE_ENDPOINT` | On-demand AI verse imagery (`src/services/images.ts`) | `image/` Edge Function (Gemini/Imagen) |
-| `EXPO_PUBLIC_IMAGE_BASE` | Optional static/pre-rendered imagery fallback | any CDN |
-| `EXPO_PUBLIC_STUDY_ENDPOINT` | AI study-guide metadata, **paid only** (`src/services/studyguide.ts`) | `studyguide/` Edge Function (Claude) |
+| `EXPO_PUBLIC_IMAGE_ENDPOINT` | On-demand verse imagery (Imagen) | `image` |
+| `EXPO_PUBLIC_AI_ENDPOINT` | AI reflection (Gemini) | `reflection` |
+| `EXPO_PUBLIC_STUDY_ENDPOINT` | AI study-guide metadata, **paid only** (Gemini) | `studyguide` |
+| `EXPO_PUBLIC_RC_API_KEY` | In-app purchases | RevenueCat (separate) |
 
-## 1. AI reflection (`reflection/index.ts`)
-Supabase Edge Function that proxies to the Anthropic Messages API so the key
-never ships in the client. The "Suggest with AI" button in the Study Guide calls
-`EXPO_PUBLIC_AI_ENDPOINT` and falls back to the authored static question on any
-error. Uses `claude-haiku-4-5` (a short question is a light task).
-
-**Diversification:** the app sends the last ~30 reflection/key phrasings as an
-`avoid` list (shared between the reflection and study-guide prompts) so new
-content steers away from recent ones; once the list passes 30 the prompt allows
-mild similarity, and older phrasings roll off so reuse is fine after ~a month.
-
+## Deploy the functions
 ```bash
-supabase functions deploy reflection --no-verify-jwt
-supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
-# then: EXPO_PUBLIC_AI_ENDPOINT=https://<project>.functions.supabase.co/reflection
+cd backend/functions && npm install
+firebase login
+firebase use <your-project>            # uses your existing Firebase project
+firebase functions:secrets:set GEMINI_API_KEY    # paste your Gemini key
+firebase deploy --only functions,storage
 ```
+Then set the three `EXPO_PUBLIC_*_ENDPOINT` vars to the deployed URLs
+(`https://us-central1-<project>.cloudfunctions.net/<image|reflection|studyguide>`).
 
-## 2. Payments — RevenueCat
-`src/services/purchases.ts` dynamically loads `react-native-purchases` (so the
-app still runs in Expo Go without it). To go live:
+## How each works
+- **`image`** — generates a cinematic image with Imagen, uploads it to Storage
+  (`verse-images/{cat}/{id}.png`) and returns a stable public URL. Later requests
+  (any user/device, any **past date** in the Calendar) return the stored image.
+  A per-verse `seed` keeps images distinct. Content rules are enforced in the
+  prompt: no text/words, no faces or depiction of Jesus, no violence; warm
+  cinematic realism.
+- **`reflection`** — returns one short bilingual reflection question.
+- **`studyguide`** — generates the full bilingual study metadata, stores it
+  (`study-guides/{id}.json`), and re-serves it forever. Called only for **paid**
+  users (the Study Guide is also paywalled client-side).
+- **Diversification** — the app sends the last ~30 reflection/key phrasings as an
+  `avoid` list (shared by `reflection` and `studyguide`) so new content steers
+  away from recent ones; past 30 it allows mild similarity and old phrasings roll
+  off, so reuse is fine after ~a month.
 
-```bash
-npx expo install react-native-purchases   # then build a dev/standalone client
-```
-- Create products in App Store Connect / Play Console and a RevenueCat project.
-- Map product ids in `RC_PRODUCTS` (`versebite_plus_monthly|yearly`, `versebite_lifetime`).
-- Set `EXPO_PUBLIC_RC_API_KEY`. `choosePlan` and Restore then run the real flow;
-  `plan` should ultimately be derived from the active entitlement.
+## Why Firebase + Gemini
+The design brief named a Supabase/Firebase backend; since the app uses **Gemini**
+for images and you already have a **Gemini key + Firebase account**, Firebase keeps
+everything in one Google stack with a single key — and Firebase Auth will back the
+upcoming login (Apple / Google / Kakao / email).
 
-## 3. AI image generation (`image/index.ts`)
-Images are generated **on demand** as the verse changes (daily pick / refresh),
-not pre-rendered. The app shows the gradient/stand-in instantly, then calls
-`EXPO_PUBLIC_IMAGE_ENDPOINT` and fades in the generated art; results are cached
-per verse so each verse keeps a distinct image (and a unique `seed` is sent so
-two verses never collide).
-
-```bash
-supabase functions deploy image --no-verify-jwt
-supabase secrets set GEMINI_API_KEY=AIza...
-# create a PUBLIC storage bucket named "verse-images"
-# then: EXPO_PUBLIC_IMAGE_ENDPOINT=https://<project>.functions.supabase.co/image
-```
-**Durable archive:** the function generates once, **uploads the image to Supabase
-Storage**, and returns a stable public URL; later requests (any user/device, and
-**past dates in the Calendar**) return the stored image instead of regenerating.
-The app records the verse shown each day (`daily` map) so a past date re-opens the
-exact verse + its saved image.
-
-**Content rules (enforced in the prompt):** no text/words, no depiction of Jesus
-or faces, no violence; warm cinematic realism in ivory/gold tones.
-Set `EXPO_PUBLIC_IMAGE_BASE` instead if you prefer pre-rendered CDN images.
-
-## 4. AI study-guide metadata (`studyguide/index.ts`) — paid only
-As the daily verse updates, the app (for **paid users only**) generates the full
-bilingual study metadata (passage · context · key message · reflection ·
-application · journal · prayer) via Claude, then stores it in Supabase Storage
-(`study-guides` bucket) and re-serves the saved copy thereafter. The Study Guide
-screen prefers the generated guide and falls back to the 45 authored guides when
-unconfigured. Visibility is paid-gated both client-side (the Study Guide is
-behind the paywall) and by only generating for paid users.
-
-```bash
-supabase functions deploy studyguide --no-verify-jwt
-supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
-# create a PUBLIC storage bucket named "study-guides"
-# then: EXPO_PUBLIC_STUDY_ENDPOINT=https://<project>.functions.supabase.co/studyguide
-```
+## Payments — RevenueCat
+`src/services/purchases.ts` dynamically loads `react-native-purchases`. To go live:
+`npx expo install react-native-purchases`, create products
+(`versebite_plus_monthly|yearly`, `versebite_lifetime`) + a RevenueCat project,
+then set `EXPO_PUBLIC_RC_API_KEY`.

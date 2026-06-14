@@ -1,5 +1,5 @@
-// AI study-guide generation. Calls a server proxy that produces the full
-// bilingual study metadata for a verse and stores it durably. Returns null
+// AI study-guide generation. Calls a Firebase Function (Gemini) that produces the
+// full bilingual study metadata for a verse and stores it durably. Returns null
 // when unconfigured or on error, so the UI falls back to the authored guide.
 import { CONFIG } from '@/config';
 import { Verse } from '@/data/content';

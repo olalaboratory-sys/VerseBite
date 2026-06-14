@@ -18,12 +18,13 @@ npm run lint              # tsc --noEmit
 > Outbound access to Expo's version API may be restricted in some sandboxes; dependencies are pinned to SDK-54-compatible versions so `npm install` works offline-of-that-API.
 
 ## Integrations (optional, env-driven)
-All degrade gracefully when unset. See [`backend/README.md`](backend/README.md).
-- `EXPO_PUBLIC_AI_ENDPOINT` — AI reflection proxy (Anthropic via Supabase Edge Function)
+Backend is **Firebase Cloud Functions + Storage**, all AI on **Gemini** (one
+`GEMINI_API_KEY`). All degrade gracefully when unset. See [`backend/README.md`](backend/README.md).
+- `EXPO_PUBLIC_IMAGE_ENDPOINT` — on-demand verse-image generation (Imagen); generated as the verse changes, stored in Firebase Storage, cached per verse, seeded so images never repeat, and re-viewable by date
+- `EXPO_PUBLIC_AI_ENDPOINT` — AI reflection (Gemini)
+- `EXPO_PUBLIC_STUDY_ENDPOINT` — AI study-guide metadata (Gemini), generated as the daily verse updates, stored durably, **paid users only** (falls back to the 45 authored guides)
 - `EXPO_PUBLIC_RC_API_KEY` — RevenueCat in-app purchases
-- `EXPO_PUBLIC_IMAGE_ENDPOINT` — on-demand verse-image generation (Gemini/Imagen proxy); images are generated as the verse changes, cached per verse, and seeded so they never repeat
 - `EXPO_PUBLIC_IMAGE_BASE` — optional static CDN fallback
-- `EXPO_PUBLIC_STUDY_ENDPOINT` — AI study-guide metadata (Claude), generated as the daily verse updates, stored durably, and shown to **paid users only** (falls back to the 45 authored guides)
 
 ## Deploy readiness
 - ✅ `tsc --noEmit` clean; `expo config` resolves with all plugins.
@@ -84,9 +85,10 @@ Order** are three independent axes, exactly as specified in the handoff.
 ## Known gaps before production (carried from the handoff QC)
 1. ~~Author the remaining 18 study guides~~ ✅ all 45 verses now have a full study guide.
 2. Expand the Korean word dictionary + stemming for learning-mode parity.
-3. Wire real backends: payments (IAP/RevenueCat), AI image pipeline, AI reflection.
-   ✅ native verse sharing (OS share sheet), ✅ daily reminder via `expo-notifications`
-   (scheduled at the chosen time, toggled in Profile), ✅ native date/time pickers.
+3. Wire real backends: ✅ Firebase Functions + Gemini for imagery/reflection/study
+   guide (deploy + set `GEMINI_API_KEY`); payments via RevenueCat; ✅ native verse
+   sharing, ✅ daily reminder (`expo-notifications`), ✅ native date/time pickers.
+   Login (Apple / Google / Kakao / email) via Firebase Auth is the next step.
 4. ✅ On-demand AI verse imagery (Gemini/Imagen) wired with per-verse caching and
    no-repeat verse selection — just set the endpoint + key to switch it on.
 

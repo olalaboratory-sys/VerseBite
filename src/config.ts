@@ -1,9 +1,10 @@
 // Runtime configuration via public env vars (inlined at build time by Expo).
 // Each integration degrades gracefully when its value is empty.
 //
-//   EXPO_PUBLIC_AI_ENDPOINT     — URL of the reflection-generation proxy (see backend/)
+//   EXPO_PUBLIC_AI_ENDPOINT     — reflection generator (Firebase Function, Gemini)
+//   EXPO_PUBLIC_STUDY_ENDPOINT  — study-guide generator (Firebase Function, Gemini)
+//   EXPO_PUBLIC_IMAGE_ENDPOINT  — verse image generator (Firebase Function, Imagen)
 //   EXPO_PUBLIC_RC_API_KEY      — RevenueCat public SDK key
-//   EXPO_PUBLIC_IMAGE_ENDPOINT  — proxy that generates a verse image (Gemini/Imagen)
 //   EXPO_PUBLIC_IMAGE_BASE      — optional static CDN base (fallback / pre-rendered)
 export const CONFIG = {
   aiEndpoint: process.env.EXPO_PUBLIC_AI_ENDPOINT ?? '',

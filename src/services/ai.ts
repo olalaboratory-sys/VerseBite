@@ -1,6 +1,6 @@
-// AI reflection generation. Calls a server-side proxy (never the model API
-// directly — the key must stay on the server). Returns null when unconfigured
-// or on any error, so the UI falls back to the authored static question.
+// AI reflection generation. Calls a Firebase Function (Gemini) so the key stays
+// server-side. Returns null when unconfigured or on any error, so the UI falls
+// back to the authored static question.
 import { CONFIG } from '@/config';
 import { Verse } from '@/data/content';
 
