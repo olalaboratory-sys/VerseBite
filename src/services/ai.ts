@@ -6,13 +6,13 @@ import { Verse } from '@/data/content';
 
 export type Reflection = { en: string; ko: string };
 
-export async function fetchReflection(verse: Verse): Promise<Reflection | null> {
+export async function fetchReflection(verse: Verse, avoid: string[] = []): Promise<Reflection | null> {
   if (!CONFIG.aiEndpoint) return null;
   try {
     const res = await fetch(CONFIG.aiEndpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ref: verse.refEn, en: verse.en, ko: verse.ko, cat: verse.cat }),
+      body: JSON.stringify({ ref: verse.refEn, en: verse.en, ko: verse.ko, cat: verse.cat, avoid }),
     });
     if (!res.ok) return null;
     const data = (await res.json()) as Partial<Reflection>;

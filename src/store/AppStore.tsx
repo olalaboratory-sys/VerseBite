@@ -8,7 +8,8 @@ import { scheduleDailyReminder, cancelDailyReminder } from '@/utils/notification
 import { purchasePlan, configurePurchases } from '@/services/purchases';
 import { generateImage, imageFor } from '@/services/images';
 import { fetchStudyGuide, GeneratedGuide } from '@/services/studyguide';
-import { hasImageGen, hasStudyGen } from '@/config';
+import { fetchReflection, Reflection } from '@/services/ai';
+import { hasImageGen, hasStudyGen, hasAI } from '@/config';
 
 export type Plan = 'free' | 'plus' | 'lifetime';
 export type Learn = 'en' | 'ko' | 'off';
@@ -58,8 +59,12 @@ const DEFAULT_COUNTS: Counts = { opens: 0, studyOpens: 0, shares: 0, refreshes: 
 const K = {
   onboarded: 'vb_onboarded', prefs: 'vb_prefs', saved: 'vb_saved', words: 'vb_words', plan: 'vb_plan',
   journal: 'vb_journal', resonance: 'vb_resonance', history: 'vb_history', counts: 'vb_counts',
-  today: 'vb_today', signup: 'vb_signup', dark: 'vb_dark', seen: 'vb_seen', genImages: 'vb_genimg', daily: 'vb_daily', genGuides: 'vb_genguides',
+  today: 'vb_today', signup: 'vb_signup', dark: 'vb_dark', seen: 'vb_seen', genImages: 'vb_genimg', daily: 'vb_daily', genGuides: 'vb_genguides', recent: 'vb_recent_phrases',
 };
+
+// keep only the last ~month of phrasings to steer away from; older ones roll
+// off so reuse/similarity is naturally allowed again after about 30.
+const RECENT_CAP = 30;
 
 function strHash(str: string): number {
   let h = 2166136261;
@@ -99,7 +104,9 @@ function useStoreValue() {
   const [genImages, setGenImages] = useState<Record<string, string>>({});
   const [daily, setDaily] = useState<Record<string, string>>({}); // dateKey -> verse shown that day
   const [genGuides, setGenGuides] = useState<Record<string, GeneratedGuide>>({}); // verseId -> AI study guide (paid)
+  const [recent, setRecent] = useState<string[]>([]); // recent reflection/key phrasings to diversify against
   const signupRef = useRef<string>(dateKey());
+  const recentRef = useRef<string[]>([]);
   const pendingImg = useRef<Set<string>>(new Set());
   const pendingGuide = useRef<Set<string>>(new Set());
 
@@ -122,11 +129,13 @@ function useStoreValue() {
       ]);
       const da = await load<Record<string, string>>(K.daily, {});
       const gg = await load<Record<string, GeneratedGuide>>(K.genGuides, {});
+      const rc = await load<string[]>(K.recent, []);
       setOnboarded(ob);
       setPrefs({ ...DEFAULT_PREFS, ...pr });
       setSaved(sv); setWords(wd); setPlan(pl); setJournal(jr); setResonance(rs); setHistory(hi);
       setCounts({ ...DEFAULT_COUNTS, ...ct });
       setDark(dk); setSeen(se); setGenImages(gi); setDaily(da); setGenGuides(gg);
+      setRecent(rc); recentRef.current = rc;
       const todayStr = new Date().toDateString();
       setTodayId(td && td.date === todayStr ? td.id : pickDaily(pr.categories));
       signupRef.current = su || dateKey();
@@ -152,6 +161,7 @@ function useStoreValue() {
   useEffect(() => { if (hydrated) save(K.genImages, genImages); }, [genImages, hydrated]);
   useEffect(() => { if (hydrated) save(K.daily, daily); }, [daily, hydrated]);
   useEffect(() => { if (hydrated) save(K.genGuides, genGuides); }, [genGuides, hydrated]);
+  useEffect(() => { recentRef.current = recent; if (hydrated) save(K.recent, recent); }, [recent, hydrated]);
 
   // remember which verses have been shown (so refresh avoids repeats)
   useEffect(() => {
@@ -349,17 +359,37 @@ function useStoreValue() {
     if (overlay && (overlay.type === 'verse' || overlay.type === 'study' || overlay.type === 'editor')) ensureImage(overlay.verse.id);
   }, [overlay, ensureImage]);
 
+  // roll recent phrasings (cap ~30) so generators steer away from repeats
+  const recordPhrases = useCallback((phrases: string[]) => {
+    setRecent((prev) => {
+      const next = [...prev];
+      for (const p of phrases) { if (p && !next.includes(p)) next.push(p); }
+      return next.slice(-RECENT_CAP);
+    });
+  }, []);
+
   // ── AI study-guide generation (paid only, cached & saved per verse) ──
   const ensureStudyGuide = useCallback((id: string) => {
     if (!hasStudyGen() || plan === 'free' || !id || genGuides[id] || pendingGuide.current.has(id)) return;
     const v = vbVerse(id);
     if (!v) return;
     pendingGuide.current.add(id);
-    fetchStudyGuide(v).then((g) => {
+    fetchStudyGuide(v, recentRef.current).then((g) => {
       pendingGuide.current.delete(id);
-      if (g) setGenGuides((prev) => ({ ...prev, [id]: g }));
+      if (g) {
+        setGenGuides((prev) => ({ ...prev, [id]: g }));
+        recordPhrases([g.reflectEn?.[0], g.keyEn?.[0]].filter(Boolean) as string[]);
+      }
     });
-  }, [genGuides, plan]);
+  }, [genGuides, plan, recordPhrases]);
+
+  // AI reflection (paid), diversified against recent phrasings
+  const suggestReflection = useCallback(async (verse: Verse): Promise<Reflection | null> => {
+    if (!hasAI()) return null;
+    const r = await fetchReflection(verse, recentRef.current);
+    if (r) recordPhrases([r.en]);
+    return r;
+  }, [recordPhrases]);
 
   // generate the full study metadata as the daily verse updates (paid)
   useEffect(() => { if (hydrated && plan !== 'free') ensureStudyGuide(todayId); }, [todayId, hydrated, plan, ensureStudyGuide]);
@@ -397,7 +427,7 @@ function useStoreValue() {
     appLang, learn, order, isPaid, savedSet, savedWordSet, notesMap, savedList, savedWordsList, journalEntries, todayKey, resonanceStreak,
     setTab: switchTab, setOverlay, setSheet, closeOverlay, openVerse, openCat, openNote, openShare, onWord, replayOnboarding,
     toggleSave, confirmUnsave, saveNote, refresh, pickCategory, toggleSaveWord, removeWord, wordIsSaved,
-    imageSrc, ensureImage, genImages, daily, genGuides, ensureStudyGuide,
+    imageSrc, ensureImage, genImages, daily, genGuides, ensureStudyGuide, suggestReflection,
     setLearn, setAppLang, setVerseOrder, setPrefs, openPaywall, requirePaid, choosePlan,
     saveReflection, saveStudyJournal, saveGratitude, openEditor, openStudy, bumpShare, saveStudyGuide, pickResonance,
     finishOnboarding, showToast,

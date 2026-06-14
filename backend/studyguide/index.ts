@@ -30,8 +30,12 @@ const publicUrl = (path: string) => `${SUPABASE_URL}/storage/v1/object/public/${
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
   try {
-    const { id, refEn, refKo, en, ko } = await req.json();
+    const { id, refEn, refKo, en, ko, avoid } = await req.json();
     const path = `${id}.json`;
+    const avoidList: string[] = Array.isArray(avoid) ? avoid : [];
+    const avoidBlock = avoidList.length
+      ? `\nDiversify: avoid repeating or closely echoing these recent reflection/key phrasings${avoidList.length >= 30 ? ' (mild similarity is acceptable now)' : ''}:\n- ${avoidList.join('\n- ')}`
+      : '';
 
     // 1) already stored? serve it (durable, shared, saved with the daily verse).
     const cached = await fetch(publicUrl(path));
@@ -44,7 +48,7 @@ Deno.serve(async (req: Request) => {
     const prompt = `You are a careful, warm Bible-study writer for a bilingual (English/Korean) app.
 For the verse ${refEn} (KO ${refKo}): EN "${en}" / KO "${ko}", produce a study guide.
 Scripture must be faithful public-domain-style text (WEB for English, 개역 style for Korean).
-Tone: gentle, non-denominational, encouraging. Korean must be natural, not machine-literal.
+Tone: gentle, non-denominational, encouraging. Korean must be natural, not machine-literal.${avoidBlock}
 Return STRICT JSON ONLY with EXACTLY these keys:
 {
  "pRefEn": "passage reference e.g. 'Proverbs 17:15–18'",

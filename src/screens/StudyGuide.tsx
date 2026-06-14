@@ -15,7 +15,6 @@ import { Scrim } from '@/components/Scrim';
 import { Icon, IconName } from '@/components/Icon';
 import { PlusChip, CircleBack } from '@/components/ui';
 import { hasAI } from '@/config';
-import { fetchReflection } from '@/services/ai';
 
 const hasKo = (s: string) => /[가-힣]/.test(s);
 function famStyle(text: string, weight: 400 | 500 | 600 = 500) {
@@ -69,7 +68,7 @@ export function StudyGuideScreen({ verse }: { verse: Verse }) {
 
   const askAI = async () => {
     setAiLoading(true);
-    const r = await fetchReflection(verse);
+    const r = await s.suggestReflection(verse);
     setAiLoading(false);
     if (r) setAiQ(lang === 'ko' ? r.ko || r.en : r.en || r.ko);
   };

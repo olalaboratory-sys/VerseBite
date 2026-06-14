@@ -20,6 +20,11 @@ never ships in the client. The "Suggest with AI" button in the Study Guide calls
 `EXPO_PUBLIC_AI_ENDPOINT` and falls back to the authored static question on any
 error. Uses `claude-haiku-4-5` (a short question is a light task).
 
+**Diversification:** the app sends the last ~30 reflection/key phrasings as an
+`avoid` list (shared between the reflection and study-guide prompts) so new
+content steers away from recent ones; once the list passes 30 the prompt allows
+mild similarity, and older phrasings roll off so reuse is fine after ~a month.
+
 ```bash
 supabase functions deploy reflection --no-verify-jwt
 supabase secrets set ANTHROPIC_API_KEY=sk-ant-...

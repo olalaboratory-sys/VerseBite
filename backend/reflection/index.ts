@@ -22,11 +22,15 @@ const CORS = {
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
   try {
-    const { ref, en, ko, cat } = await req.json();
+    const { ref, en, ko, cat, avoid } = await req.json();
+    const avoidList: string[] = Array.isArray(avoid) ? avoid : [];
+    const avoidBlock = avoidList.length
+      ? `\nAvoid repeating or closely echoing these recent questions${avoidList.length >= 30 ? ' (mild similarity is acceptable now)' : ''}:\n- ${avoidList.join('\n- ')}`
+      : '';
     const prompt = `You are a gentle spiritual-reflection guide for a bilingual (English/Korean) daily Bible-verse app.
 Write ONE short, open-ended reflection question (max 22 words) inviting the reader to apply this verse to their day.
 Warm, non-prescriptive, no clichés. Theme: ${cat}.
-Verse (${ref}): EN "${en}" / KO "${ko}".
+Verse (${ref}): EN "${en}" / KO "${ko}".${avoidBlock}
 Return STRICT JSON only: {"en":"<question in English>","ko":"<same question in natural Korean>"}`;
 
     const res = await fetch('https://api.anthropic.com/v1/messages', {
