@@ -50,7 +50,7 @@ export function TodayScreen() {
 
       <View style={{ paddingHorizontal: 16 }}>
         <Pressable onPress={() => s.openVerse(verse)}>
-          <VerseCard verse={verse} layout="editorial" order={s.order} learn={s.learn} onWord={s.onWord} savedWords={s.savedWordSet} />
+          <VerseCard verse={verse} layout="editorial" order={s.order} learn={s.learn} onWord={s.onWord} savedWords={s.savedWordSet} imgSrc={s.imageSrc(verse)} />
         </Pressable>
 
         <View style={{ marginTop: 20 }}>

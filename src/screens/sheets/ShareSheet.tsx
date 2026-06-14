@@ -13,9 +13,10 @@ import { Icon, IconName } from '@/components/Icon';
 import { shareVerse } from '@/utils/share';
 import type { Toast } from '@/store/AppStore';
 
-export function ShareSheet({ verse, order, isPaid, onEditor, onClose, onToast }: { verse: Verse; order: 'en' | 'ko'; isPaid: boolean; onEditor: () => void; onClose: () => void; onToast: (t: Toast) => void }) {
+export function ShareSheet({ verse, order, isPaid, imgSrc, onEditor, onClose, onToast }: { verse: Verse; order: 'en' | 'ko'; isPaid: boolean; imgSrc?: string; onEditor: () => void; onClose: () => void; onToast: (t: Toast) => void }) {
   const theme = useTheme();
   const { t } = useI18n();
+  const src = imgSrc ?? imageFor(verse);
   const [a, b] = vbOrder(verse, order);
   const c = vbCategory(verse.cat)!;
   const opts: { id: string; label: string; icon: IconName; toast: string }[] = [
@@ -29,7 +30,7 @@ export function ShareSheet({ verse, order, isPaid, onEditor, onClose, onToast }:
       <Text style={{ paddingTop: 14, textAlign: 'center', fontSize: 17, fontWeight: '600', color: theme.labelPrimary }}>Share Verse Card</Text>
       <View style={{ paddingHorizontal: 44, paddingTop: 16, paddingBottom: 8 }}>
         <View style={[{ borderRadius: 18, overflow: 'hidden', aspectRatio: 9 / 16 }, theme.shadow]}>
-          <VBImage cat={verse.cat} src={imageFor(verse)} radius={18} style={{ flex: 1 }} scrim={<Scrim colors={['rgba(28,22,17,0.10)', 'rgba(28,22,17,0.86)']} />}>
+          <VBImage cat={verse.cat} src={src} radius={18} style={{ flex: 1 }} scrim={<Scrim colors={['rgba(28,22,17,0.10)', 'rgba(28,22,17,0.86)']} />}>
             <View style={{ position: 'absolute', top: 14, left: 0, right: 0, alignItems: 'center' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                 <Icon name="quote" size={13} color={theme.gold} />

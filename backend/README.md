@@ -8,9 +8,10 @@ to switch each on.
 
 | Env var | Enables | Service |
 |---|---|---|
-| `EXPO_PUBLIC_AI_ENDPOINT` | AI reflection (`src/services/ai.ts`) | this folder's Edge Function |
+| `EXPO_PUBLIC_AI_ENDPOINT` | AI reflection (`src/services/ai.ts`) | `reflection/` Edge Function |
 | `EXPO_PUBLIC_RC_API_KEY` | In-app purchases (`src/services/purchases.ts`) | RevenueCat |
-| `EXPO_PUBLIC_IMAGE_BASE` | AI verse imagery (`src/services/images.ts`) | any CDN |
+| `EXPO_PUBLIC_IMAGE_ENDPOINT` | On-demand AI verse imagery (`src/services/images.ts`) | `image/` Edge Function (Gemini/Imagen) |
+| `EXPO_PUBLIC_IMAGE_BASE` | Optional static/pre-rendered imagery fallback | any CDN |
 
 ## 1. AI reflection (`reflection/index.ts`)
 Supabase Edge Function that proxies to the Anthropic Messages API so the key
@@ -36,8 +37,18 @@ npx expo install react-native-purchases   # then build a dev/standalone client
 - Set `EXPO_PUBLIC_RC_API_KEY`. `choosePlan` and Restore then run the real flow;
   `plan` should ultimately be derived from the active entitlement.
 
-## 3. AI image pipeline
-Generate one cinematic image per verse (`{cat}/{id}.jpg`) and host on a CDN.
-**Content rules (from the handoff):** no text, no explicit depiction of Jesus,
-no violence; warm cinematic realism. Set `EXPO_PUBLIC_IMAGE_BASE` to the CDN root
-and `imageFor(verse)` serves them automatically (gradient fallback still applies).
+## 3. AI image generation (`image/index.ts`)
+Images are generated **on demand** as the verse changes (daily pick / refresh),
+not pre-rendered. The app shows the gradient/stand-in instantly, then calls
+`EXPO_PUBLIC_IMAGE_ENDPOINT` and fades in the generated art; results are cached
+per verse so each verse keeps a distinct image (and a unique `seed` is sent so
+two verses never collide).
+
+```bash
+supabase functions deploy image --no-verify-jwt
+supabase secrets set GEMINI_API_KEY=AIza...
+# then: EXPO_PUBLIC_IMAGE_ENDPOINT=https://<project>.functions.supabase.co/image
+```
+**Content rules (enforced in the prompt):** no text/words, no depiction of Jesus
+or faces, no violence; warm cinematic realism in ivory/gold tones.
+Set `EXPO_PUBLIC_IMAGE_BASE` instead if you prefer pre-rendered CDN images.

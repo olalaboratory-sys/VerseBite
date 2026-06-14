@@ -120,7 +120,7 @@ export function StudyGuideScreen({ verse }: { verse: Verse }) {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 40, gap: 12 }}>
         {/* selected verse */}
         <View style={[{ borderRadius: 18, overflow: 'hidden' }, theme.shadowSm]}>
-          <VBImage cat={verse.cat} src={imageFor(verse)} radius={18} style={{ minHeight: 172 }} scrim={<Scrim colors={['rgba(28,22,17,0.45)', 'rgba(28,22,17,0.20)', 'rgba(28,22,17,0.88)']} locations={[0, 0.36, 0.92]} />}>
+          <VBImage cat={verse.cat} src={s.imageSrc(verse)} radius={18} style={{ minHeight: 172 }} scrim={<Scrim colors={['rgba(28,22,17,0.45)', 'rgba(28,22,17,0.20)', 'rgba(28,22,17,0.88)']} locations={[0, 0.36, 0.92]} />}>
             <View style={{ position: 'absolute', top: 12, left: 12 }}><Text style={{ fontSize: 10, fontWeight: '600', letterSpacing: 1.2, textTransform: 'uppercase', color: 'rgba(255,255,255,0.9)' }}>{t('sg.selectedVerse')}</Text></View>
             <View style={{ position: 'absolute', left: 16, right: 16, bottom: 14 }}>
               <Text style={[{ fontSize: 17, lineHeight: 22, color: '#fff' }, famStyle(vA)]}>{vA}</Text>

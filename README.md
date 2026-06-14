@@ -21,7 +21,8 @@ npm run lint              # tsc --noEmit
 All degrade gracefully when unset. See [`backend/README.md`](backend/README.md).
 - `EXPO_PUBLIC_AI_ENDPOINT` — AI reflection proxy (Anthropic via Supabase Edge Function)
 - `EXPO_PUBLIC_RC_API_KEY` — RevenueCat in-app purchases
-- `EXPO_PUBLIC_IMAGE_BASE` — CDN base for AI-generated verse imagery
+- `EXPO_PUBLIC_IMAGE_ENDPOINT` — on-demand verse-image generation (Gemini/Imagen proxy); images are generated as the verse changes, cached per verse, and seeded so they never repeat
+- `EXPO_PUBLIC_IMAGE_BASE` — optional static CDN fallback
 
 ## Architecture
 ```
@@ -65,7 +66,8 @@ Order** are three independent axes, exactly as specified in the handoff.
 3. Wire real backends: payments (IAP/RevenueCat), AI image pipeline, AI reflection.
    ✅ native verse sharing (OS share sheet), ✅ daily reminder via `expo-notifications`
    (scheduled at the chosen time, toggled in Profile), ✅ native date/time pickers.
-4. Replace Unsplash stand-in imagery with the AI image pipeline.
+4. ✅ On-demand AI verse imagery (Gemini/Imagen) wired with per-verse caching and
+   no-repeat verse selection — just set the endpoint + key to switch it on.
 
 > Build note: `expo export` for native runs Hermes AOT (`hermesc`), which in some
 > Linux sandboxes rejects `#private` fields from a dependency. This only affects the

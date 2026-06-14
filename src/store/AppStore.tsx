@@ -6,6 +6,8 @@ import { dateKey, pickDaily, shortDate } from '@/data/daily';
 import { lookup } from '@/data/words';
 import { scheduleDailyReminder, cancelDailyReminder } from '@/utils/notifications';
 import { purchasePlan, configurePurchases } from '@/services/purchases';
+import { generateImage, imageFor } from '@/services/images';
+import { hasImageGen } from '@/config';
 
 export type Plan = 'free' | 'plus' | 'lifetime';
 export type Learn = 'en' | 'ko' | 'off';
@@ -55,8 +57,14 @@ const DEFAULT_COUNTS: Counts = { opens: 0, studyOpens: 0, shares: 0, refreshes: 
 const K = {
   onboarded: 'vb_onboarded', prefs: 'vb_prefs', saved: 'vb_saved', words: 'vb_words', plan: 'vb_plan',
   journal: 'vb_journal', resonance: 'vb_resonance', history: 'vb_history', counts: 'vb_counts',
-  today: 'vb_today', signup: 'vb_signup', dark: 'vb_dark',
+  today: 'vb_today', signup: 'vb_signup', dark: 'vb_dark', seen: 'vb_seen', genImages: 'vb_genimg',
 };
+
+function strHash(str: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
 
 async function load<T>(key: string, fallback: T): Promise<T> {
   try {
@@ -86,7 +94,10 @@ function useStoreValue() {
   const [counts, setCounts] = useState<Counts>(DEFAULT_COUNTS);
   const [todayId, setTodayId] = useState<string>('v22');
   const [dark, setDark] = useState(false);
+  const [seen, setSeen] = useState<string[]>([]);
+  const [genImages, setGenImages] = useState<Record<string, string>>({});
   const signupRef = useRef<string>(dateKey());
+  const pendingImg = useRef<Set<string>>(new Set());
 
   // navigation (not persisted)
   const [tab, setTab] = useState<'today' | 'calendar' | 'badges' | 'saved' | 'profile'>('today');
@@ -98,17 +109,18 @@ function useStoreValue() {
   // ── hydrate ──
   useEffect(() => {
     (async () => {
-      const [ob, pr, sv, wd, pl, jr, rs, hi, ct, td, su, dk] = await Promise.all([
+      const [ob, pr, sv, wd, pl, jr, rs, hi, ct, td, su, dk, se, gi] = await Promise.all([
         load(K.onboarded, false), load<Prefs>(K.prefs, DEFAULT_PREFS), load<Record<string, SavedEntry>>(K.saved, {}),
         load<Record<string, WordEntry>>(K.words, {}), load<Plan>(K.plan, 'free'), load<Record<string, JournalEntry>>(K.journal, {}),
         load<Record<string, string>>(K.resonance, {}), load<typeof history>(K.history, []), load<Counts>(K.counts, DEFAULT_COUNTS),
         load<{ date: string; id: string } | null>(K.today, null), load<string | null>(K.signup, null), load(K.dark, false),
+        load<string[]>(K.seen, []), load<Record<string, string>>(K.genImages, {}),
       ]);
       setOnboarded(ob);
       setPrefs({ ...DEFAULT_PREFS, ...pr });
       setSaved(sv); setWords(wd); setPlan(pl); setJournal(jr); setResonance(rs); setHistory(hi);
       setCounts({ ...DEFAULT_COUNTS, ...ct });
-      setDark(dk);
+      setDark(dk); setSeen(se); setGenImages(gi);
       const todayStr = new Date().toDateString();
       setTodayId(td && td.date === todayStr ? td.id : pickDaily(pr.categories));
       signupRef.current = su || dateKey();
@@ -130,6 +142,14 @@ function useStoreValue() {
   useEffect(() => { if (hydrated) save(K.onboarded, onboarded); }, [onboarded, hydrated]);
   useEffect(() => { if (hydrated) save(K.dark, dark); }, [dark, hydrated]);
   useEffect(() => { if (hydrated) save(K.today, { date: new Date().toDateString(), id: todayId }); }, [todayId, hydrated]);
+  useEffect(() => { if (hydrated) save(K.seen, seen); }, [seen, hydrated]);
+  useEffect(() => { if (hydrated) save(K.genImages, genImages); }, [genImages, hydrated]);
+
+  // remember which verses have been shown (so refresh avoids repeats)
+  useEffect(() => {
+    if (!hydrated || !todayId) return;
+    setSeen((prev) => (prev.includes(todayId) ? prev : [...prev, todayId].slice(-200)));
+  }, [todayId, hydrated]);
 
   // ── track app open (once) ──
   useEffect(() => {
@@ -229,22 +249,27 @@ function useStoreValue() {
     setCounts((p) => ({ ...p, refreshes: (p.refreshes || 0) + 1 }));
     setTodayId((cur) => {
       const v = vbVerse(cur)!;
+      const seenSet = new Set(seen);
       let cands = vbVersesByCat(v.cat).filter((x) => x.id !== cur);
       if (!cands.length) cands = VERSES.filter((x) => prefs.categories.includes(x.cat) && x.id !== cur);
       if (!cands.length) cands = VERSES.filter((x) => x.id !== cur);
-      return cands[Math.floor(Math.random() * cands.length)].id;
+      const unseen = cands.filter((x) => !seenSet.has(x.id)); // avoid repeats
+      const pool = unseen.length ? unseen : cands;
+      return pool[Math.floor(Math.random() * pool.length)].id;
     });
-  }, [prefs.categories]);
+  }, [prefs.categories, seen]);
 
   const pickCategory = useCallback((catId: string) => {
     setTodayId((cur) => {
       const v = vbVerse(cur);
       if (v && v.cat === catId) return cur;
       const pool = vbVersesByCat(catId);
-      const next = pool[Math.floor(Math.random() * pool.length)];
+      const unseen = pool.filter((x) => !seen.includes(x.id));
+      const choose = unseen.length ? unseen : pool;
+      const next = choose[Math.floor(Math.random() * choose.length)];
       return next ? next.id : cur;
     });
-  }, []);
+  }, [seen]);
 
   const toggleSaveWord = useCallback((wordObj: WordEntry) => {
     setWords((prev) => {
@@ -291,6 +316,24 @@ function useStoreValue() {
 
   const pickResonance = useCallback((feeling: string) => setResonance((prev) => ({ ...prev, [todayKey]: feeling })), [todayKey]);
 
+  // ── AI image generation (on demand, cached per verse) ──
+  const ensureImage = useCallback((id: string) => {
+    if (!hasImageGen() || !id || genImages[id] || pendingImg.current.has(id)) return;
+    const v = vbVerse(id);
+    if (!v) return;
+    pendingImg.current.add(id);
+    generateImage(v, strHash(id)).then((url) => {
+      pendingImg.current.delete(id);
+      if (url) setGenImages((prev) => ({ ...prev, [id]: url }));
+    });
+  }, [genImages]);
+  const imageSrc = useCallback((verse: Verse) => genImages[verse.id] || imageFor(verse), [genImages]);
+
+  useEffect(() => { if (hydrated) ensureImage(todayId); }, [todayId, hydrated, ensureImage]);
+  useEffect(() => {
+    if (overlay && (overlay.type === 'verse' || overlay.type === 'study' || overlay.type === 'editor')) ensureImage(overlay.verse.id);
+  }, [overlay, ensureImage]);
+
   const finishOnboarding = useCallback((p: { appLang: Lang; learningMode: Learn; primaryLang: string; order: string; verseOrder: Prefs['verseOrder']; categories: string[]; notifications: boolean; plan: Plan }) => {
     setPrefs((prev) => ({ ...prev, appLang: p.appLang, primaryLang: p.primaryLang, order: p.order, verseOrder: p.verseOrder || 'auto', learningMode: p.learningMode, notifications: p.notifications, categories: p.categories }));
     if (p.plan && p.plan !== 'free') setPlan(p.plan);
@@ -321,6 +364,7 @@ function useStoreValue() {
     appLang, learn, order, isPaid, savedSet, savedWordSet, notesMap, savedList, savedWordsList, journalEntries, todayKey, resonanceStreak,
     setTab: switchTab, setOverlay, setSheet, closeOverlay, openVerse, openCat, openNote, openShare, onWord, replayOnboarding,
     toggleSave, confirmUnsave, saveNote, refresh, pickCategory, toggleSaveWord, removeWord, wordIsSaved,
+    imageSrc, ensureImage, genImages,
     setLearn, setAppLang, setVerseOrder, setPrefs, openPaywall, requirePaid, choosePlan,
     saveReflection, saveStudyJournal, saveGratitude, openEditor, openStudy, bumpShare, saveStudyGuide, pickResonance,
     finishOnboarding, showToast,

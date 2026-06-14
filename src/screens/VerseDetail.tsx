@@ -26,7 +26,7 @@ export function VerseDetailScreen({ verse }: { verse: Verse }) {
   return (
     <OverlayScreen animateKey={verse.id}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
-        <VBImage cat={verse.cat} src={imageFor(verse)} radius={0} style={{ height: 340 }} scrim={<Scrim colors={['rgba(28,22,17,0.34)', 'rgba(28,22,17,0.10)', theme.bg]} locations={[0, 0.56, 0.99]} />}>
+        <VBImage cat={verse.cat} src={s.imageSrc(verse)} radius={0} style={{ height: 340 }} scrim={<Scrim colors={['rgba(28,22,17,0.34)', 'rgba(28,22,17,0.10)', theme.bg]} locations={[0, 0.56, 0.99]} />}>
           <View style={{ position: 'absolute', top: insets.top + 6, left: 16 }}><GlassBack onPress={s.closeOverlay} /></View>
           <View style={{ position: 'absolute', top: insets.top + 6, right: 16 }}><CatChip cat={verse.cat} onImage /></View>
         </VBImage>

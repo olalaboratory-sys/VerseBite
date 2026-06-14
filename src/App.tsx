@@ -60,7 +60,7 @@ function Sheets({ s }: { s: StoreValue }) {
   if (!sh) return null;
   switch (sh.type) {
     case 'note': return <NoteSheet verse={sh.verse} order={s.order} initial={s.notesMap[sh.verse.id] || ''} onCancel={() => s.setSheet(null)} onSave={(text) => { s.saveNote(sh.verse.id, text); s.setSheet(null); }} />;
-    case 'share': return <ShareSheet verse={sh.verse} order={s.order} isPaid={s.isPaid} onEditor={() => { s.setSheet(null); s.openEditor(sh.verse); }} onClose={() => s.setSheet(null)} onToast={s.showToast} />;
+    case 'share': return <ShareSheet verse={sh.verse} order={s.order} isPaid={s.isPaid} imgSrc={s.imageSrc(sh.verse)} onEditor={() => { s.setSheet(null); s.openEditor(sh.verse); }} onClose={() => s.setSheet(null)} onToast={s.showToast} />;
     case 'word': return <WordSheet token={sh.token} lang={sh.lang} saved={s.wordIsSaved(sh.token, sh.lang)} onToggleSave={(w) => s.toggleSaveWord(w)} onClose={() => s.setSheet(null)} />;
     case 'paywall': return <PaywallSheet reason={sh.reason} onChoose={s.choosePlan} onClose={() => s.setSheet(null)} onToast={s.showToast} />;
     case 'unsave': return <UnsaveSheet onConfirm={() => s.confirmUnsave(sh.id)} onCancel={() => s.setSheet(null)} />;
