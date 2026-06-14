@@ -47,8 +47,15 @@ two verses never collide).
 ```bash
 supabase functions deploy image --no-verify-jwt
 supabase secrets set GEMINI_API_KEY=AIza...
+# create a PUBLIC storage bucket named "verse-images"
 # then: EXPO_PUBLIC_IMAGE_ENDPOINT=https://<project>.functions.supabase.co/image
 ```
+**Durable archive:** the function generates once, **uploads the image to Supabase
+Storage**, and returns a stable public URL; later requests (any user/device, and
+**past dates in the Calendar**) return the stored image instead of regenerating.
+The app records the verse shown each day (`daily` map) so a past date re-opens the
+exact verse + its saved image.
+
 **Content rules (enforced in the prompt):** no text/words, no depiction of Jesus
 or faces, no violence; warm cinematic realism in ivory/gold tones.
 Set `EXPO_PUBLIC_IMAGE_BASE` instead if you prefer pre-rendered CDN images.

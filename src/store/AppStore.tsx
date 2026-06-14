@@ -57,7 +57,7 @@ const DEFAULT_COUNTS: Counts = { opens: 0, studyOpens: 0, shares: 0, refreshes: 
 const K = {
   onboarded: 'vb_onboarded', prefs: 'vb_prefs', saved: 'vb_saved', words: 'vb_words', plan: 'vb_plan',
   journal: 'vb_journal', resonance: 'vb_resonance', history: 'vb_history', counts: 'vb_counts',
-  today: 'vb_today', signup: 'vb_signup', dark: 'vb_dark', seen: 'vb_seen', genImages: 'vb_genimg',
+  today: 'vb_today', signup: 'vb_signup', dark: 'vb_dark', seen: 'vb_seen', genImages: 'vb_genimg', daily: 'vb_daily',
 };
 
 function strHash(str: string): number {
@@ -96,6 +96,7 @@ function useStoreValue() {
   const [dark, setDark] = useState(false);
   const [seen, setSeen] = useState<string[]>([]);
   const [genImages, setGenImages] = useState<Record<string, string>>({});
+  const [daily, setDaily] = useState<Record<string, string>>({}); // dateKey -> verse shown that day
   const signupRef = useRef<string>(dateKey());
   const pendingImg = useRef<Set<string>>(new Set());
 
@@ -116,11 +117,12 @@ function useStoreValue() {
         load<{ date: string; id: string } | null>(K.today, null), load<string | null>(K.signup, null), load(K.dark, false),
         load<string[]>(K.seen, []), load<Record<string, string>>(K.genImages, {}),
       ]);
+      const da = await load<Record<string, string>>(K.daily, {});
       setOnboarded(ob);
       setPrefs({ ...DEFAULT_PREFS, ...pr });
       setSaved(sv); setWords(wd); setPlan(pl); setJournal(jr); setResonance(rs); setHistory(hi);
       setCounts({ ...DEFAULT_COUNTS, ...ct });
-      setDark(dk); setSeen(se); setGenImages(gi);
+      setDark(dk); setSeen(se); setGenImages(gi); setDaily(da);
       const todayStr = new Date().toDateString();
       setTodayId(td && td.date === todayStr ? td.id : pickDaily(pr.categories));
       signupRef.current = su || dateKey();
@@ -144,12 +146,20 @@ function useStoreValue() {
   useEffect(() => { if (hydrated) save(K.today, { date: new Date().toDateString(), id: todayId }); }, [todayId, hydrated]);
   useEffect(() => { if (hydrated) save(K.seen, seen); }, [seen, hydrated]);
   useEffect(() => { if (hydrated) save(K.genImages, genImages); }, [genImages, hydrated]);
+  useEffect(() => { if (hydrated) save(K.daily, daily); }, [daily, hydrated]);
 
   // remember which verses have been shown (so refresh avoids repeats)
   useEffect(() => {
     if (!hydrated || !todayId) return;
     setSeen((prev) => (prev.includes(todayId) ? prev : [...prev, todayId].slice(-200)));
   }, [todayId, hydrated]);
+
+  // record the verse actually shown today, so past dates re-open the same verse + image
+  useEffect(() => {
+    if (!hydrated || !onboarded || !todayId) return;
+    const k = dateKey();
+    setDaily((prev) => (prev[k] === todayId ? prev : { ...prev, [k]: todayId }));
+  }, [todayId, hydrated, onboarded]);
 
   // ── track app open (once) ──
   useEffect(() => {
@@ -364,7 +374,7 @@ function useStoreValue() {
     appLang, learn, order, isPaid, savedSet, savedWordSet, notesMap, savedList, savedWordsList, journalEntries, todayKey, resonanceStreak,
     setTab: switchTab, setOverlay, setSheet, closeOverlay, openVerse, openCat, openNote, openShare, onWord, replayOnboarding,
     toggleSave, confirmUnsave, saveNote, refresh, pickCategory, toggleSaveWord, removeWord, wordIsSaved,
-    imageSrc, ensureImage, genImages,
+    imageSrc, ensureImage, genImages, daily,
     setLearn, setAppLang, setVerseOrder, setPrefs, openPaywall, requirePaid, choosePlan,
     saveReflection, saveStudyJournal, saveGratitude, openEditor, openStudy, bumpShare, saveStudyGuide, pickResonance,
     finishOnboarding, showToast,

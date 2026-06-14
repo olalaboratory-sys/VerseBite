@@ -98,12 +98,16 @@ export function CalendarScreen() {
           </View>
         ) : (
           <View style={{ gap: 10 }}>
-            {sets.flatMap((x) => x.verseIds).map((id) => {
+            {(() => {
+              const recorded = s.daily[sel];
+              const base = sets.flatMap((x) => x.verseIds);
+              return recorded ? [recorded, ...base.filter((id) => id !== recorded)] : base;
+            })().map((id) => {
               const v = vbVerse(id);
               if (!v) return null;
               return (
                 <View key={id} style={[{ borderRadius: 18, overflow: 'hidden', borderWidth: 0.5, borderColor: theme.hair }, theme.shadowSm]}>
-                  <VerseRow verse={v} order={s.order} saved={s.savedSet.has(id)} onOpen={() => s.openVerse(v)} onToggleSave={s.toggleSave} />
+                  <VerseRow verse={v} order={s.order} saved={s.savedSet.has(id)} imgSrc={s.imageSrc(v)} onOpen={() => s.openVerse(v)} onToggleSave={s.toggleSave} />
                 </View>
               );
             })}
