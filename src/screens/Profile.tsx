@@ -9,6 +9,7 @@ import { vbCategory } from '@/data/content';
 import { Icon } from '@/components/Icon';
 import { VBHeader } from '@/components/Header';
 import { ListSection, ListRow, Switch, PlusChip, ScrollScreen, OverlayScreen, OverlayHeader, Button } from '@/components/ui';
+import { PlatformPicker, formatTime } from '@/components/PlatformPicker';
 
 type Panel = null | 'applang' | 'learn' | 'donate';
 
@@ -17,6 +18,9 @@ export function ProfileScreen() {
   const { t, lang } = useI18n();
   const s = useStore();
   const [panel, setPanel] = useState<Panel>(null);
+  const [showTime, setShowTime] = useState(false);
+  const reminderDate = new Date();
+  reminderDate.setHours(s.prefs.reminderHour ?? 8, s.prefs.reminderMinute ?? 0, 0, 0);
   const learnLabel = t(LEARN_LABEL[s.learn] || 'learn.en');
   const appLangLabel = s.appLang === 'ko' ? '한국어' : 'English';
   const tint = (id: string) => vbCategory(id)!.tint;
@@ -45,6 +49,7 @@ export function ProfileScreen() {
   if (panel === 'donate') return <DonatePanel onBack={() => setPanel(null)} />;
 
   return (
+    <>
     <ScrollScreen>
       <VBHeader title={t('h.profile')} />
 
@@ -112,7 +117,7 @@ export function ProfileScreen() {
 
         <ListSection header={t('sec.reminder')} footer={t('reminder.footer')}>
           <ListRow icon="bell" iconBg={tint('motivation')} title={t('row.dailyReminder')} trailing={<Switch checked={s.prefs.notifications} onChange={(v) => s.setPrefs((p) => ({ ...p, notifications: v }))} />} />
-          <ListRow icon="today" iconBg={tint('hope')} title={t('row.reminderTime')} value="8:00 AM" accessory="chevron" onPress={() => s.showToast({ text: '8:00 AM', icon: 'today' })} />
+          <ListRow icon="today" iconBg={tint('hope')} title={t('row.reminderTime')} value={formatTime(s.prefs.reminderHour ?? 8, s.prefs.reminderMinute ?? 0, lang)} accessory="chevron" onPress={() => setShowTime(true)} />
         </ListSection>
 
         <ListSection header={t('sec.appearance')}>
@@ -138,6 +143,14 @@ export function ProfileScreen() {
         </Pressable>
       </View>
     </ScrollScreen>
+    <PlatformPicker
+      visible={showTime}
+      mode="time"
+      value={reminderDate}
+      onConfirm={(d) => { s.setPrefs((p) => ({ ...p, reminderHour: d.getHours(), reminderMinute: d.getMinutes() })); setShowTime(false); }}
+      onCancel={() => setShowTime(false)}
+    />
+    </>
   );
 }
 

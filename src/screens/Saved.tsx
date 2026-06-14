@@ -8,16 +8,17 @@ import { CATEGORIES } from '@/data/content';
 import { Icon } from '@/components/Icon';
 import { VBHeader } from '@/components/Header';
 import { VerseRow } from '@/components/VerseRow';
-import { SegmentedControl } from '@/components/ui';
+import { SegmentedControl, ScrollScreen } from '@/components/ui';
+import { PlatformPicker } from '@/components/PlatformPicker';
 
-function SearchField({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder: string }) {
+function SearchField({ value, onChange, placeholder, onCalendar }: { value: string; onChange: (v: string) => void; placeholder: string; onCalendar: () => void }) {
   const theme = useTheme();
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, height: 38, paddingHorizontal: 12, borderRadius: 12, backgroundColor: theme.fill, borderWidth: 0.5, borderColor: theme.hair }}>
       <Icon name="search" size={17} color={theme.labelTertiary} />
       <TextInput value={value} onChangeText={onChange} placeholder={placeholder} placeholderTextColor={theme.labelTertiary} style={{ flex: 1, fontSize: 16, color: theme.labelPrimary, padding: 0 }} />
       {value ? <Pressable onPress={() => onChange('')} hitSlop={8}><Icon name="close" size={16} color={theme.labelTertiary} /></Pressable> : null}
-      <Icon name="calendar" size={17} color={theme.goldInk} />
+      <Pressable onPress={onCalendar} hitSlop={8}><Icon name="calendar" size={17} color={theme.goldInk} /></Pressable>
     </View>
   );
 }
@@ -29,6 +30,7 @@ export function SavedScreen() {
   const [view, setView] = useState<'verses' | 'words'>('verses');
   const [q, setQ] = useState('');
   const [filter, setFilter] = useState('all');
+  const [showDate, setShowDate] = useState(false);
 
   let list = s.savedList;
   if (filter !== 'all') list = list.filter((x) => x.verse.cat === filter);
@@ -55,7 +57,8 @@ export function SavedScreen() {
   );
 
   return (
-    <View style={{ paddingBottom: 30 }}>
+    <>
+    <ScrollScreen>
       <VBHeader title={t('h.saved')} subtitle={`${s.savedList.length} ${s.savedList.length === 1 ? t('count.verse') : t('count.verses')} · ${s.savedWordsList.length} ${s.savedWordsList.length === 1 ? t('count.word') : t('count.words')}`} />
       <View style={{ paddingHorizontal: 16, paddingTop: 6, paddingBottom: 12 }}>
         <SegmentedControl value={view} onChange={setView} options={[{ value: 'verses', label: t('saved.verses') }, { value: 'words', label: t('saved.words') }]} />
@@ -65,7 +68,7 @@ export function SavedScreen() {
         s.savedList.length === 0 ? <Empty icon="bookmark" title={t('saved.noVerses')} sub={t('saved.noVersesSub')} /> : (
           <>
             <View style={{ paddingHorizontal: 16, paddingBottom: 4 }}>
-              <SearchField value={q} onChange={setQ} placeholder={t('saved.searchDate')} />
+              <SearchField value={q} onChange={setQ} placeholder={t('saved.searchDate')} onCalendar={() => setShowDate(true)} />
             </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingHorizontal: 16, paddingVertical: 10 }}>
               {filters.map((f) => {
@@ -94,7 +97,7 @@ export function SavedScreen() {
         s.savedWordsList.length === 0 ? <Empty icon="globe" title={t('saved.noWords')} sub={s.learn !== 'off' ? t('saved.noWordsSub') : t('saved.noWordsOff')} /> : (
           <>
             <View style={{ paddingHorizontal: 16, paddingBottom: 12 }}>
-              <SearchField value={q} onChange={setQ} placeholder={t('saved.searchDate')} />
+              <SearchField value={q} onChange={setQ} placeholder={t('saved.searchDate')} onCalendar={() => setShowDate(true)} />
             </View>
             <View style={{ paddingHorizontal: 16, gap: 10 }}>
               {wordList.length === 0 ? <Text style={{ textAlign: 'center', color: theme.labelTertiary, fontSize: 15, paddingVertical: 30 }}>{t('saved.noMatches')}</Text> : null}
@@ -118,6 +121,8 @@ export function SavedScreen() {
           </>
         )
       )}
-    </View>
+    </ScrollScreen>
+    <PlatformPicker visible={showDate} mode="date" value={new Date()} onConfirm={(d) => { setQ(d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })); setShowDate(false); }} onCancel={() => setShowDate(false)} />
+    </>
   );
 }

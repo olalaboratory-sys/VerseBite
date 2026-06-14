@@ -36,7 +36,7 @@ function TabContent({ s }: { s: StoreValue }) {
     case 'today': return <ScrollScreen><TodayScreen /></ScrollScreen>;
     case 'calendar': return <ScrollScreen><CalendarScreen /></ScrollScreen>;
     case 'badges': return <ScrollScreen><AwardsScreen /></ScrollScreen>;
-    case 'saved': return <ScrollScreen><SavedScreen /></ScrollScreen>;
+    case 'saved': return <SavedScreen />;
     case 'profile': return <ProfileScreen />;
   }
 }

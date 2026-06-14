@@ -4,6 +4,7 @@ import { Lang } from '@/i18n/dict';
 import { VERSES, Verse, vbVerse, vbVersesByCat } from '@/data/content';
 import { dateKey, pickDaily, shortDate } from '@/data/daily';
 import { lookup } from '@/data/words';
+import { scheduleDailyReminder, cancelDailyReminder } from '@/utils/notifications';
 
 export type Plan = 'free' | 'plus' | 'lifetime';
 export type Learn = 'en' | 'ko' | 'off';
@@ -17,6 +18,8 @@ export type Prefs = {
   learningMode: Learn;
   notifications: boolean;
   categories: string[];
+  reminderHour: number;
+  reminderMinute: number;
 };
 
 export type SavedEntry = { note: string; savedAt: string; ts: number; guide?: boolean; cat?: string };
@@ -44,7 +47,7 @@ export type Sheet =
   | null;
 
 const DEFAULT_PREFS: Prefs = {
-  appLang: 'en', primaryLang: 'both', order: 'en', verseOrder: 'auto', learningMode: 'en', notifications: true, categories: ['hope', 'gratitude', 'faith'],
+  appLang: 'en', primaryLang: 'both', order: 'en', verseOrder: 'auto', learningMode: 'en', notifications: true, categories: ['hope', 'gratitude', 'faith'], reminderHour: 8, reminderMinute: 0,
 };
 const DEFAULT_COUNTS: Counts = { opens: 0, studyOpens: 0, shares: 0, refreshes: 0, daysOpened: [], morningDays: [], bilingualDays: [], streak: 0 };
 
@@ -151,6 +154,16 @@ function useStoreValue() {
     setHistory((prev) => (prev[0] && prev[0].id === todayId ? prev : [{ id: todayId, ts: Date.now(), date: shortDate(), source: 'daily' }, ...prev].slice(0, 60)));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [todayId, onboarded, hydrated]);
+
+  // ── daily reminder scheduling ──
+  useEffect(() => {
+    if (!hydrated || !onboarded) return;
+    if (prefs.notifications) {
+      scheduleDailyReminder(prefs.reminderHour ?? 8, prefs.reminderMinute ?? 0, prefs.appLang || 'en');
+    } else {
+      cancelDailyReminder();
+    }
+  }, [hydrated, onboarded, prefs.notifications, prefs.reminderHour, prefs.reminderMinute, prefs.appLang]);
 
   const showToast = useCallback((tObj: Toast) => {
     setToast(tObj);
@@ -269,7 +282,7 @@ function useStoreValue() {
   const pickResonance = useCallback((feeling: string) => setResonance((prev) => ({ ...prev, [todayKey]: feeling })), [todayKey]);
 
   const finishOnboarding = useCallback((p: { appLang: Lang; learningMode: Learn; primaryLang: string; order: string; verseOrder: Prefs['verseOrder']; categories: string[]; notifications: boolean; plan: Plan }) => {
-    setPrefs({ appLang: p.appLang, primaryLang: p.primaryLang, order: p.order, verseOrder: p.verseOrder || 'auto', learningMode: p.learningMode, notifications: p.notifications, categories: p.categories });
+    setPrefs((prev) => ({ ...prev, appLang: p.appLang, primaryLang: p.primaryLang, order: p.order, verseOrder: p.verseOrder || 'auto', learningMode: p.learningMode, notifications: p.notifications, categories: p.categories }));
     if (p.plan && p.plan !== 'free') setPlan(p.plan);
     save(K.signup, signupRef.current || dateKey());
     setTodayId(pickDaily(p.categories));

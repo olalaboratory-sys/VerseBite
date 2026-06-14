@@ -56,6 +56,12 @@ Order** are three independent axes, exactly as specified in the handoff.
 ## Known gaps before production (carried from the handoff QC)
 1. ~~Author the remaining 18 study guides~~ ✅ all 45 verses now have a full study guide.
 2. Expand the Korean word dictionary + stemming for learning-mode parity.
-3. Wire real backends: payments (IAP/RevenueCat), 8 AM notifications (expo-notifications), AI image pipeline, AI reflection. ✅ native verse sharing now uses the OS share sheet.
+3. Wire real backends: payments (IAP/RevenueCat), AI image pipeline, AI reflection.
+   ✅ native verse sharing (OS share sheet), ✅ daily reminder via `expo-notifications`
+   (scheduled at the chosen time, toggled in Profile), ✅ native date/time pickers.
 4. Replace Unsplash stand-in imagery with the AI image pipeline.
-5. Native date picker for the Saved date search (currently free-text).
+
+> Build note: `expo export` for native runs Hermes AOT (`hermesc`), which in some
+> Linux sandboxes rejects `#private` fields from a dependency. This only affects the
+> ahead-of-time bytecode step — Metro bundles all modules, and the Hermes runtime in
+> Expo Go / a dev build executes the JS normally.
